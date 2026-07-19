@@ -842,6 +842,7 @@ const rom = {
   digitSel:0, display:new Uint8Array(10).fill(0x7f), speakerOn:false,
   keyByte: ROM_NO_KEY, keyHoldTimer:null,
   runHandle:null, stepCounter:0,
+  ionSeen:false, userSeen:false,
 };
 
 // Serielle H8-Seite fuer die H19-Anbindung: Port 350/351 oktal (0xE8/0xE9 hex).
@@ -879,7 +880,7 @@ function romPowerOn(){
   mem.set(PAM8_ROM, 0);
   rom.mem = mem;
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
-  rom.stepCounter=0;
+  rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
   const c = new CPU(mem, new Uint8Array(256));
   c.onIn = romIoIn; c.onOut = romIoOut;
   // Nur fuer diese Instanz: das reale H8 blendet ROM (0-1777 oktal) bei Schreibzugriffen
@@ -904,11 +905,36 @@ function romRunLoop(){
   function frame(){
     if(!powered || !rom.cpu){ rom.runHandle=null; return; }
     const c = rom.cpu;
+    // ION soll den IFF-Zustand ("Interrupts freigegeben") anzeigen. Real
+    // wechselt IFF sehr schnell zwischen an/aus (DI/EI-Paare in fast jeder
+    // ISR) - auf echter Hardware treibt das eine LED, die das Auge durch
+    // Nachleuchten als "an" wahrnimmt. Da hier nur einmal je Frame gerendert
+    // wird, würde ein einzelner Schnappschuss am Frame-Ende ION praktisch
+    // nie anzeigen: Frame-Budget=6000 ist ein exaktes Vielfaches der
+    // Interrupt-Periode 400, wodurch das Frame-Ende fast immer genau in das
+    // kurze "gerade unterbrochen"-Fenster faellt (empirisch gemessen: dort
+    // iff=false, obwohl iff insgesamt gut 85% der Zeit true ist). Deshalb
+    // wird ueber den gesamten Frame ODER-verknuepft, ob IFF zwischendurch
+    // mal true war, statt nur den letzten Wert zu nehmen.
+    // MON/RUN leiden am selben Aliasing-Problem: waehrend ein Anwenderprogramm
+    // laeuft, dippt die periodische ISR alle ~400 Schritte kurz ins ROM
+    // (Adresse <1024) - trifft der einzelne Schnappschuss am Frame-Ende
+    // (wie bei ION) fast immer genau diesen Dip, zeigt RUN praktisch nie,
+    // obwohl das Programm tatsaechlich laeuft (per Feinschritt-Tracking
+    // verifiziert: das Sprungziel wird zuverlaessig erreicht, nur die Anzeige
+    // hinkt hinterher). Deshalb ebenfalls ueber den Frame ODER-verknuepft:
+    // war zu irgendeinem Zeitpunkt PC>=1024 (Anwendercode), gilt der Frame
+    // als "Anwenderprogramm laeuft" - MON ergibt sich daraus als Gegenteil,
+    // nicht als eigene unabhaengige Messung (sonst waeren waehrend eines
+    // laufenden Programms wegen der ISR-Dips oft beide Lampen an).
+    let iffSeen = false, userSeen = false;
     for(let i=0;i<6000;i++){
       if(c.halted){
         if(c.iff){ c.interrupt(0x08); } else break;
       }
       c.step();
+      if(c.iff) iffSeen = true;
+      if(c.pc>=1024) userSeen = true;
       rom.stepCounter++;
       // Takt 400: empirisch stabil fuer Boot/Beispielprogramm/Initial Test Routine/RTM.
       // Ein Versuch mit 820 (naeher an der realen 2ms/500Hz-Rate) behebt zwar seltene
@@ -921,6 +947,8 @@ function romRunLoop(){
       // bleiben - Abhilfe ist ein manueller RESET (Hardware-Funktion, unabhaengig vom ROM).
       if(c.iff && (rom.stepCounter % 400)===0){ c.interrupt(0x08); }
     }
+    rom.ionSeen = iffSeen;
+    rom.userSeen = userSeen;
     romRender();
     rom.runHandle = requestAnimationFrame(frame);
   }
@@ -935,9 +963,12 @@ function romRender(){
     return;
   }
   setLamp('pwr', true);
-  setLamp('ion', rom.cpu.iff);
-  // Heuristik: Monitor-Code liegt vollstaendig im ROM (Adresse 0-1023).
-  const inRom = rom.cpu.pc < 1024;
+  setLamp('ion', rom.ionSeen);
+  // Heuristik: Monitor-Code liegt vollstaendig im ROM (Adresse 0-1023). Nutzt
+  // rom.userSeen (siehe romRunLoop) statt der reinen Momentaufnahme von
+  // rom.cpu.pc, da diese wegen des Interrupt-Sampling-Alias-Effekts fast nie
+  // "im Anwenderprogramm" zeigen wuerde, obwohl es tatsaechlich laeuft.
+  const inRom = !rom.userSeen;
   setLamp('mon', inRom);
   setLamp('run', !inRom);
   // Bit 7 ist wie die uebrigen Segmentbits aktiv-Low (0 = Punkt an) - bestaetigt
@@ -966,7 +997,7 @@ function romDoReset(){
   // Reset, der immer sauber funktioniert.
   rom.mem.fill(0, 1024);
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
-  rom.stepCounter=0;
+  rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
   beep('long');
 }
 function romDoRTM(){
