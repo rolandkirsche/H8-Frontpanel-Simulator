@@ -1451,25 +1451,39 @@ document.getElementById('btn-mute').addEventListener('click', (e)=>{
   e.target.textContent = muted ? '🔇 Ton aus' : '🔊 Ton an';
 });
 
+// Ziffer aus dem physischen Tastencode lesen (e.code, z.B. "Digit0"), nicht
+// aus e.key: mit gedrueckter Shift-Taste liefert e.key layoutabhaengig ein
+// verschobenes Zeichen statt der Ziffer (z.B. "=" bei Shift+0 auf deutscher,
+// ")" auf US-Tastatur) - dadurch schlug die Ziffernerkennung fehl und
+// Umschalt+0 (RTM) reagierte nie. Strg+0 (RESET) funktionierte nur zufaellig,
+// weil Strg das erzeugte Zeichen nicht veraendert.
+function digitFromEvent(e){
+  const m = /^(?:Digit|Numpad)([0-9])$/.exec(e.code||'');
+  if(m) return parseInt(m[1],10);
+  const k=e.key;
+  return (k>='0' && k<='9') ? parseInt(k,10) : null;
+}
 window.addEventListener('keydown',(e)=>{
   if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')) return;
   if(e.repeat) return;
   if(!powered) return;
-  const k=e.key;
-  if(k>='0' && k<='7'){
-    const n=parseInt(k,10);
-    if((e.ctrlKey||e.metaKey) && n===0){ romDoReset(); e.preventDefault(); return; }
-    if(e.shiftKey && n===0){ romDoRTM(); e.preventDefault(); return; }
-    romPressKey(ROM_KEY_BYTE[n]); e.preventDefault(); return;
+  const digit = digitFromEvent(e);
+  if(digit!==null && digit<=7){
+    if((e.ctrlKey||e.metaKey) && digit===0){ romDoReset(); e.preventDefault(); return; }
+    if(e.shiftKey && digit===0){ romDoRTM(); e.preventDefault(); return; }
+    romPressKey(ROM_KEY_BYTE[digit]); e.preventDefault(); return;
   }
+  const k=e.key;
   const map={m:'MEM', r:'REG', a:'ALTER', c:'CANCEL', l:'LOAD', d:'DUMP'};
   if(map[k.toLowerCase()]){ romPressKey(ROM_KEY_BYTE[map[k.toLowerCase()]]); e.preventDefault(); return; }
   if(k==='+'||k==='='){ romPressKey(ROM_KEY_BYTE.PLUS); e.preventDefault(); return; }
   if(k==='-'){ romPressKey(ROM_KEY_BYTE.MINUS); e.preventDefault(); return; }
 });
 window.addEventListener('keyup',(e)=>{
+  const digit = digitFromEvent(e);
+  if(digit!==null && digit<=7){ romReleaseKey(); return; }
   const k=e.key.toLowerCase();
-  if('01234567'.includes(k) || 'mracld+=-'.includes(k)) romReleaseKey();
+  if('mracld+=-'.includes(k)) romReleaseKey();
 });
 
 /* ===== H19: Netzschalter + Tastatur-Fokus-Eingabe ===== */
