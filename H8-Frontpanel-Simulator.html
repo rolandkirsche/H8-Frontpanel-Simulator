@@ -351,13 +351,15 @@
     </div>
     <div class="card">
       <h2>H19-Terminal anbinden</h2>
-      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle — deshalb tippt diese Taste ein kleines, selbst
-      geschriebenes Echo-Programm (14 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und startet es
-      per <code>GO</code>. Es wartet auf ein Byte vom H19 und schickt es sofort zurück.</p>
-      <p>Danach: H19 einschalten, auf den Bildschirm klicken und tippen — jedes Zeichen läuft echt über die serielle
-      Leitung zum H8 und von dort zurück zum H19-Bildschirm, verarbeitet von der Original-H19-Firmware.</p>
+      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle — deshalb tippt der Simulator automatisch ein kleines,
+      selbst geschriebenes Echo-Programm (14 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und
+      startet es per <code>GO</code>, sobald H8 <strong>und</strong> H19 eingeschaltet sind. Es wartet auf ein Byte
+      vom H19 und schickt es sofort zurück — kein manueller Klick nötig.</p>
+      <p>Einfach H19 einschalten, auf den Bildschirm klicken und tippen — jedes Zeichen läuft echt über die serielle
+      Leitung zum H8 und von dort zurück zum H19-Bildschirm, verarbeitet von der Original-H19-Firmware. Der Button
+      unten lädt das Echo-Programm bei Bedarf manuell neu (z. B. nach eigenen Experimenten im H8-Speicher).</p>
       <div class="actions">
-        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 laden &amp; starten</button>
+        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
       </div>
     </div>
   </div>
@@ -837,6 +839,11 @@ function decodeRomSeg(byte){
 
 let powered = false;
 let h19powered = false;
+// Ob das selbst geschriebene Echo-Demoprogramm bereits im H8-RAM steckt und
+// laeuft - wird bei RAM-Loeschung (RESET) oder H8-Abschalten wieder falsch,
+// damit es bei Bedarf automatisch neu eingetippt wird (siehe
+// maybeAutoLoadSerialEcho weiter unten).
+let serialEchoLoaded = false;
 const rom = {
   cpu:null, mem:null,
   digitSel:0, display:new Uint8Array(10).fill(0x7f), speakerOn:false,
@@ -998,7 +1005,9 @@ function romDoReset(){
   rom.mem.fill(0, 1024);
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
   rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
+  serialEchoLoaded=false; // RAM (und damit das Echo-Demo) ist geloescht
   beep('long');
+  maybeAutoLoadSerialEcho();
 }
 function romDoRTM(){
   if(!powered) return;
@@ -1291,12 +1300,14 @@ function powerOn(){
   document.getElementById('power-toggle').classList.add('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','true');
   romPowerOn();
+  maybeAutoLoadSerialEcho();
 }
 function powerOff(){
   powered=false;
   document.getElementById('power-toggle').classList.remove('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','false');
   romPowerOff();
+  serialEchoLoaded=false; // naechstes Einschalten hat wieder leeres RAM
 }
 function togglePower(){ powered ? powerOff() : powerOn(); }
 
@@ -1412,6 +1423,17 @@ async function romLoadSerialEcho(btn){
     btn.disabled=false; btn.textContent=label;
   }
 }
+// Sobald H8 UND H19 beide eingeschaltet sind, das Echo-Demo automatisch
+// eintippen und starten - ohne diesen Schritt kennt PAM8 keine seriellen
+// Routinen und der H19-Bildschirm bleibt beim Tippen stumm. Wird von
+// powerOn(), h19TogglePower() und romDoReset() aus aufgerufen; der
+// serialEchoLoaded-Merker verhindert wiederholtes/doppeltes Auto-Laden.
+function maybeAutoLoadSerialEcho(){
+  if(!powered || !h19powered || serialEchoLoaded) return;
+  serialEchoLoaded = true;
+  const btn = document.getElementById('btn-serial-echo');
+  if(btn) romLoadSerialEcho(btn);
+}
 
 /* ================= EVENT WIRING ================= */
 function keyByteForButton(btn){
@@ -1492,7 +1514,7 @@ function h19TogglePower(){
   const t = document.getElementById('h19-power-toggle');
   t.classList.toggle('on', h19powered);
   t.setAttribute('aria-checked', h19powered?'true':'false');
-  if(h19powered){ h19PowerOn(); beep('medium'); }
+  if(h19powered){ h19PowerOn(); beep('medium'); maybeAutoLoadSerialEcho(); }
   else { h19PowerOff(); h19Render(); }
 }
 const h19PowerToggleEl = document.getElementById('h19-power-toggle');
@@ -1519,6 +1541,7 @@ h19Render();
 if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romLoadSerialEcho, romDoReset, romDoRTM,
   CPU, h19PowerOn, h19PowerOff, h19, wire, H19FONT_ROM, H19CODE_ROM,
   get h19powered(){return h19powered;}, set h19powered(v){h19powered=v;}, h19KeyToBytes, h19SendKeyBytes,
+  get serialEchoLoaded(){return serialEchoLoaded;}, maybeAutoLoadSerialEcho, h19TogglePower,
   h19Render, h19EnsureCanvas, get h19Ctx(){return h19Ctx;}, get h19Canvas(){return h19Canvas;} }; }
 })();
 </script>
