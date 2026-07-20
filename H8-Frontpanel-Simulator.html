@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Heathkit H8 – Frontpanel-Nachbildung mit H19-Terminal</title>
+<title>Heathkit H8 – Frontpanel-Nachbildung</title>
 </head>
 <body>
 <style>
@@ -129,35 +129,6 @@
   .hint{font-size:11px;color:var(--ink-soft);line-height:1.4;max-width:520px;}
   button.util:disabled{opacity:.4;cursor:not-allowed;}
 
-  /* ============ H19 TERMINAL ============ */
-  .h19-stage{margin-top:44px;}
-  .h19-case{
-    width:100%;max-width:720px;margin:0 auto;border-radius:10px;overflow:hidden;
-    box-shadow:0 30px 60px -20px rgba(0,0,0,.5), 0 8px 20px -6px rgba(0,0,0,.35);
-    background:var(--case-black);
-  }
-  .h19-panel{
-    background:linear-gradient(180deg,var(--putty-hi),var(--putty) 12%, var(--putty));
-    padding:22px 22px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;
-  }
-  .h19-screen-frame{
-    width:100%;background:#0a0a0a;border-radius:6px;padding:16px;
-    box-shadow:inset 0 2px 10px rgba(0,0,0,.85), inset 0 0 0 1px #000;
-    display:flex;justify-content:center;position:relative;cursor:text;
-  }
-  .h19-screen-frame.focused{box-shadow:inset 0 2px 10px rgba(0,0,0,.85), inset 0 0 0 1px #000, 0 0 0 2px var(--badge);}
-  #h19-screen{width:100%;max-width:640px;height:auto;display:block;image-rendering:pixelated;image-rendering:crisp-edges;}
-  .h19-screen-hint{
-    position:absolute;bottom:6px;right:14px;font-size:9px;letter-spacing:.06em;
-    color:#3a5540;pointer-events:none;
-  }
-  .h19-screen-frame.focused .h19-screen-hint{display:none;}
-
-  @media (prefers-color-scheme: dark){ #h19-screen{filter:brightness(1.05);} }
-
-  /* ============ H19 REVERSE ENGINEERING HINWEISKARTE ============ */
-  .h19-note{font-size:11px;color:var(--ink-soft);line-height:1.5;max-width:640px;text-align:center;margin:0 auto;}
-
   /* ============ HELP / INSTRUCTIONS ============ */
   .panel-below{margin-top:44px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start;}
   .card-stack{display:flex;flex-direction:column;gap:18px;min-width:0;}
@@ -255,37 +226,6 @@
     </div>
   </div>
 
-  <div class="h19-stage">
-    <div class="h19-case">
-      <div class="h8-vent"></div>
-      <div class="h19-panel">
-        <div class="h19-screen-frame" id="h19-screen-frame" tabindex="0" aria-label="H19-Bildschirm, anklicken und tippen">
-          <canvas id="h19-screen"></canvas>
-          <span class="h19-screen-hint">Klicken, dann tippen</span>
-        </div>
-        <div class="brand-block">
-          <span class="wordmark">heathkit</span>
-          <span class="model-tag">Video Terminal &middot; Model H19</span>
-        </div>
-      </div>
-      <div class="h8-base"></div>
-    </div>
-
-    <div class="rear-controls">
-      <div class="power-switch">
-        <div class="toggle" id="h19-power-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="H19-Netzschalter"><i></i></div>
-        <label for="h19-power-toggle">POWER <span>(H19-Terminal)</span></label>
-      </div>
-      <div class="hint">Bildschirm anklicken, dann direkt auf der Computertastatur tippen. Pfeiltasten, Enter, Tab,
-      Backspace, Escape und Strg+Taste werden gesendet. Die serielle Verbindung zum H8 arbeitet automatisch, sobald
-      beide Geräte eingeschaltet sind.</div>
-    </div>
-    <p class="h19-note">Läuft mit der originalen H19-Terminal-Firmware (Heath Teilenr. 444-46, Zeichensatz-ROM
-    444-29) auf einem selbstgebauten Z80-Interpreter. Die Tastaturausgabe ist <strong>nicht</strong> aus dem
-    Tastatur-Encoder-ROM (444-37) rekonstruiert, sondern direkt aus bekannten H19-Tastencodes erzeugt (Details siehe
-    Fußzeile). Die serielle Schnittstelle auf H8-Seite ist ein selbst entworfener, nicht-authentischer Demo-Port.</p>
-  </div>
-
   <div class="panel-below">
     <div class="card">
       <h2>Bedienung</h2>
@@ -349,19 +289,6 @@
         </div>
       </div>
     </div>
-    <div class="card">
-      <h2>H19-Terminal anbinden</h2>
-      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle — deshalb tippt der Simulator automatisch ein kleines,
-      selbst geschriebenes Echo-Programm (14 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und
-      startet es per <code>GO</code>, sobald H8 <strong>und</strong> H19 eingeschaltet sind. Es wartet auf ein Byte
-      vom H19 und schickt es sofort zurück — kein manueller Klick nötig.</p>
-      <p>Einfach H19 einschalten, auf den Bildschirm klicken und tippen — jedes Zeichen läuft echt über die serielle
-      Leitung zum H8 und von dort zurück zum H19-Bildschirm, verarbeitet von der Original-H19-Firmware. Der Button
-      unten lädt das Echo-Programm bei Bedarf manuell neu (z. B. nach eigenen Experimenten im H8-Speicher).</p>
-      <div class="actions">
-        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
-      </div>
-    </div>
   </div>
 
   <footer class="note">
@@ -371,17 +298,6 @@
     (Port 370/371) ist nicht angeschlossen — LOAD/DUMP warten wie am Original auf ein Bandgerät, mit CANCEL abbrechbar.
     Die exakte physische Tastenanordnung des Originals ist nicht photographisch verifiziert und daher funktional statt
     pixelgenau nachgebildet; Flag-Feinheiten des 8080A (insbesondere DAA/Auxiliary-Carry bei Subtraktion) sind vereinfacht.
-    <br><br>
-    Das H19-Terminal läuft mit der originalen Terminal-ROM (Heath Teilenr. 444-46, Firmware-Quelle re-erstellt von
-    T. Gulczynski, 2009) und dem originalen Zeichensatz-ROM (444-29) auf einem selbstgebauten Z80-Interpreter
-    (8080-Kern um CB-/ED-Präfixe, DJNZ/JR und Schattenregister erweitert — kein IX/IY nötig, laut Firmware-Quelltext
-    ungenutzt). CRT-Controller (6845-kompatibel) und UART (INS8250-kompatibel, Port 40–45h) folgen Standard-
-    Registersemantik, empirisch am laufenden ROM verifiziert. Die Tastatur-Ausgabe kommt <strong>nicht</strong> aus
-    dem Tastatur-Encoder-ROM (444-37) — dessen Matrixadressierung ließ sich ohne Schaltplan nicht zweifelsfrei
-    rekonstruieren —, sondern wird aus bekannten H19-Tastencodes direkt erzeugt und auf die virtuelle serielle
-    Leitung gelegt. Die H8-seitige serielle Schnittstelle (Port 350/351 oktal) ist mangels erhaltener
-    Interface-Unterlagen ein selbst entworfener, nicht-authentischer Demo-Port, keine Nachbildung einer realen
-    Heath-Karte.
   </footer>
 </div>
 
@@ -392,17 +308,12 @@
 /* ================= 8080A CPU ================= */
 function parity(v){ v&=0xFF; let c=0; while(v){c+=v&1; v>>=1;} return c%2===0; }
 
-function CPU(mem, ports, z80){
-  this.mem=mem; this.ports=ports; this.z80=!!z80; this.reset();
+function CPU(mem, ports){
+  this.mem=mem; this.ports=ports; this.reset();
 }
 CPU.prototype.reset=function(){
   this.a=0;this.b=0;this.c=0;this.d=0;this.e=0;this.h=0;this.l=0;
   this.f=0x02; this.sp=0; this.pc=0; this.iff=false; this.halted=false;
-  // Nur im Z80-Modus (H19) genutzt: Schattenregistersatz (EXX/EX AF,AF'),
-  // Interrupt-Modus und I/R-Register. Im 8080-Modus (H8) bleiben diese Felder
-  // ungenutzt und aendern nichts am bestehenden Verhalten.
-  this.a_=0;this.f_=0x02;this.b_=0;this.c_=0;this.d_=0;this.e_=0;this.h_=0;this.l_=0;
-  this.im=0; this.i=0; this.r=0; this.iff2=false;
 };
 CPU.prototype.rd=function(addr){ return this.mem[addr & 0xFFFF]; };
 CPU.prototype.wr=function(addr,val){ this.mem[addr & 0xFFFF]=val & 0xFF; };
@@ -478,132 +389,14 @@ CPU.prototype.daa=function(){
 // automatisch weitere Interrupts (IFF=0), bis der ROM-Code erneut EI ausfuehrt.
 CPU.prototype.interrupt=function(vector){
   this.halted=false;
-  this.iff2=this.iff; // Z80: IFF2 merkt sich den Stand vor dem Interrupt, fuer RETN
   this.iff=false;
   this.push16(this.pc);
   this.pc=vector;
 };
 
-// ===== Z80-Zusatzbefehle (nur wenn this.z80===true erreichbar) =====
-// CB-Praefix: Rotate/Shift/BIT/RES/SET. Generische Dekodierung ueber die
-// Standard-Bitfelder (Gruppe/Subtyp/Register) statt 256 Einzelfaellen -
-// deckt den vollen CB-Opcoderaum ab, auch wenn die H19-Firmware laut
-// Quelltext-Analyse nur BIT tatsaechlich benutzt.
-CPU.prototype.execCB=function(cb){
-  const group=(cb>>6)&3, y=(cb>>3)&7, z=cb&7;
-  let v=this.getReg(z);
-  if(group===0){
-    let c;
-    switch(y){
-      case 0: c=(v>>7)&1; v=((v<<1)|c)&0xFF; break; // RLC
-      case 1: c=v&1; v=((v>>1)|(c<<7))&0xFF; break; // RRC
-      case 2:{const cin=this.getCarry()?1:0; c=(v>>7)&1; v=((v<<1)|cin)&0xFF; break;} // RL
-      case 3:{const cin=this.getCarry()?1:0; c=v&1; v=((v>>1)|(cin<<7))&0xFF; break;} // RR
-      case 4: c=(v>>7)&1; v=(v<<1)&0xFF; break; // SLA
-      case 5: c=v&1; v=((v>>1)|(v&0x80))&0xFF; break; // SRA
-      case 6: c=(v>>7)&1; v=((v<<1)|1)&0xFF; break; // SLL (undokumentiert, selten)
-      case 7: c=v&1; v=(v>>1)&0xFF; break; // SRL
-    }
-    this.setReg(z,v);
-    this.setCarry(c===1);
-    this.setAC(false);
-    this.setSZP(v);
-  } else if(group===1){ // BIT y,(r)
-    const bit=(v>>y)&1;
-    this.setAC(true);
-    this.f = bit ? (this.f & ~0x40) : (this.f | 0x40);
-  } else if(group===2){ // RES y,(r)
-    this.setReg(z, v & ~(1<<y));
-  } else { // SET y,(r)
-    this.setReg(z, v | (1<<y));
-  }
-};
-// ED-Praefix: nur der Teilsatz, der in der re-erstellten TERMROM-Quelle
-// nachweislich vorkommt (NEG, IM 1, LDIR/LDDR, RETN), plus ein paar eng
-// verwandte, guenstige Ergaenzungen (LDI/LDD/CPI.../RETI/IM0/IM2/I- und
-// R-Register) als Absicherung. Unbekannte ED-Codes verhalten sich wie NOP.
-CPU.prototype.execED=function(ed){
-  switch(ed){
-    case 0x44:{ const v=this.a; this.a=(0-v)&0xFF; this.setCarry(v!==0); this.setAC((v&0xF)!==0); this.setSZP(this.a); break; } // NEG
-    case 0x45: case 0x4D: this.iff=this.iff2; this.pc=this.pop16(); break; // RETN/RETI
-    case 0x46: this.im=0; break;
-    case 0x56: this.im=1; break;
-    case 0x5E: this.im=2; break;
-    case 0x47: this.i=this.a; break; // LD I,A
-    case 0x4F: this.r=this.a; break; // LD R,A
-    case 0x57: this.a=this.i; this.setSZP(this.a); this.setAC(false); break; // LD A,I (vereinfachte Flags)
-    case 0x5F: this.a=this.r; this.setSZP(this.a); this.setAC(false); break; // LD A,R
-    case 0xA0: this.ldi_(); break;
-    case 0xA8: this.ldd_(); break;
-    case 0xB0: this.ldi_(); if(this.getBC()!==0) this.pc=(this.pc-2)&0xFFFF; break; // LDIR
-    case 0xB8: this.ldd_(); if(this.getBC()!==0) this.pc=(this.pc-2)&0xFFFF; break; // LDDR
-    case 0xA1: this.cpi_(); break;
-    case 0xA9: this.cpd_(); break;
-    case 0xB1: this.cpi_(); if(this.getBC()!==0 && !this.getZ()) this.pc=(this.pc-2)&0xFFFF; break; // CPIR
-    case 0xB9: this.cpd_(); if(this.getBC()!==0 && !this.getZ()) this.pc=(this.pc-2)&0xFFFF; break; // CPDR
-    default: break;
-  }
-};
-CPU.prototype.ldi_=function(){
-  const v=this.rd(this.getHL());
-  this.wr(this.getDE(), v);
-  this.setHL((this.getHL()+1)&0xFFFF);
-  this.setDE((this.getDE()+1)&0xFFFF);
-  const bc=(this.getBC()-1)&0xFFFF; this.setBC(bc);
-  this.f = (this.f & (0x80|0x40|0x01)) | (bc!==0 ? 0x04 : 0);
-};
-CPU.prototype.ldd_=function(){
-  const v=this.rd(this.getHL());
-  this.wr(this.getDE(), v);
-  this.setHL((this.getHL()-1)&0xFFFF);
-  this.setDE((this.getDE()-1)&0xFFFF);
-  const bc=(this.getBC()-1)&0xFFFF; this.setBC(bc);
-  this.f = (this.f & (0x80|0x40|0x01)) | (bc!==0 ? 0x04 : 0);
-};
-CPU.prototype.cpi_=function(){
-  const v=this.rd(this.getHL());
-  const diff=(this.a - v) & 0xFF;
-  this.setHL((this.getHL()+1)&0xFFFF);
-  const bc=(this.getBC()-1)&0xFFFF; this.setBC(bc);
-  this.f = (this.f & 0x01) | (diff & 0x80) | (diff===0?0x40:0) | (bc!==0?0x04:0) | 0x10;
-};
-CPU.prototype.cpd_=function(){
-  const v=this.rd(this.getHL());
-  const diff=(this.a - v) & 0xFF;
-  this.setHL((this.getHL()-1)&0xFFFF);
-  const bc=(this.getBC()-1)&0xFFFF; this.setBC(bc);
-  this.f = (this.f & 0x01) | (diff & 0x80) | (diff===0?0x40:0) | (bc!==0?0x04:0) | 0x10;
-};
-
 CPU.prototype.step=function(){
   if(this.halted) return;
   const op=this.fetch8();
-  if(this.z80){
-    switch(op){
-      case 0x08:{ // EX AF,AF'
-        const a=this.a,f=this.f; this.a=this.a_; this.f=this.f_; this.a_=a; this.f_=f; return;
-      }
-      case 0xD9:{ // EXX
-        let t;
-        t=this.b;this.b=this.b_;this.b_=t; t=this.c;this.c=this.c_;this.c_=t;
-        t=this.d;this.d=this.d_;this.d_=t; t=this.e;this.e=this.e_;this.e_=t;
-        t=this.h;this.h=this.h_;this.h_=t; t=this.l;this.l=this.l_;this.l_=t;
-        return;
-      }
-      case 0xCB: this.execCB(this.fetch8()); return;
-      case 0xED: this.execED(this.fetch8()); return;
-      // Wichtig: 0x10/0x18/0x20/0x28/0x30/0x38 sind beim 8080 undokumentierte
-      // NOP-Duplikate (siehe unten im Hauptswitch), beim Z80 aber die haeufig
-      // genutzte relative Sprungfamilie DJNZ/JR - ohne diese Faelle laeuft der
-      // Code nach jedem JR einfach weiter, statt zu springen (fuehrt zu PC-Drift).
-      case 0x10:{ const off=this.fetch8(); this.b=(this.b-1)&0xFF; if(this.b!==0) this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // DJNZ e
-      case 0x18:{ const off=this.fetch8(); this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // JR e
-      case 0x20:{ const off=this.fetch8(); if(!this.getZ()) this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // JR NZ,e
-      case 0x28:{ const off=this.fetch8(); if(this.getZ()) this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // JR Z,e
-      case 0x30:{ const off=this.fetch8(); if(!this.getCarry()) this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // JR NC,e
-      case 0x38:{ const off=this.fetch8(); if(this.getCarry()) this.pc=(this.pc+((off<<24)>>24))&0xFFFF; return; } // JR C,e
-    }
-  }
   switch(op){
     case 0x00: break;
     case 0x01: this.setBC(this.fetch16()); break;
@@ -796,12 +589,6 @@ function decodeROM(b64){
 }
 const PAM8_ROM = decodeROM(PAM8_ROM_B64);
 
-/* ================= H19-Terminal-ROMs (original, Heath 444-46 Code / 444-29 Font) ================= */
-const H19CODE_ROM_B64 = "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";
-const H19FONT_ROM_B64 = "GBgYGBgYGBgYGAAAAAAAAAAAAAD//wAAAAAAAAAAAAAYGBgY//8YGBgYAAAAAAAAAAAAAPj4GBgYGAAAAAAAABgYGBj4+AAAAAAAAAAAAAAYGBgYHx8AAAAAAAAAAAAAAAAAAB8fGBgYGAAAAAAAAAAICD4ICAA+AAAAAAAAAAAAAAgEPgQIAAAAAAAAAAAAqlWqVapVqlWqVQAAAAAAAAAACAA+AAgAAAAAAAAAAAAAAAgIKhwIAAAAAAAAAAAAAAAAAAAPDw8PDwAAAAAAAAAAAAAA8PDw8PAAAAAAAADw8PDw8AAAAAAAAAAAAAAADw8PDw8AAAAAAAAAAAAAAP//////AAAAAAAAAAAAAAAPDw8PDw8PDw8PAAAAAAAA//78+PDw4MCAgAAAAAAAAAAAAAD//xgYGBgAAAAAAAAYGBgY+PgYGBgYAAAAAAAAGBgYGP//AAAAAAAAAAAAABgYGBgfHxgYGBgAAAAAAACBw2Y8GBg8ZsOBAAAAAAAAAQMGDBgYMGDAgAAAAAAAAIDAYDAYGAwGAwEAAAAAAAD//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAAAAAAAMDAwMDAwMDAwMAAAAAAAAADAwMDAwMDAwMDAAAAAAAAAB48PBwMDAwAAAAAAAAAAP9/Px8PDwcDAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgICAgIAAgAAAAAAAAAAAAUFBQAAAAAAAAAAAAAAAAAFBQ+FD4UFAAAAAAAAAAAAAgeKBwKPAgAAAAAAAAAAAAwMgQIECYGAAAAAAAAAAAACBQUGCokGgAAAAAAAAAAAAgIEAAAAAAAAAAAAAAAAAAECBAQEAgEAAAAAAAAAAAAEAgEBAQIEAAAAAAAAAAAAAAIKhwqCAAAAAAAAAAAAAAACAg+CAgAAAAAAAAAAAAAAAAAAAAYGAgQAAAAAAAAAAAAAD4AAAAAAAAAAAAAAAAAAAAAABgYAAAAAAAAAAAAAQIECBAgQAAAAAAAAAAAABwiJioyIhwAAAAAAAAAAAAIGAgICAgcAAAAAAAAAAAAHCICBAgQPgAAAAAAAAAAAD4ECAQCIhwAAAAAAAAAAAAEDBQkPgQEAAAAAAAAAAAAPiA8AgIiHAAAAAAAAAAAAAwQIDwiIhwAAAAAAAAAAAA+AgQIEBAQAAAAAAAAAAAAHCIiHCIiHAAAAAAAAAAAABwiIh4CBBgAAAAAAAAAAAAAGBgAGBgAAAAAAAAAAAAAABgYABgYCBAAAAAAAAAAAAIECBAIBAIAAAAAAAAAAAAAAD4APgAAAAAAAAAAAAAAIBAIBAgQIAAAAAAAAAAAABwiAgQIAAgAAAAAAAAAAAAMEi4qLiAeAAAAAAAAAAAAHCIiPiIiIgAAAAAAAAAAADwiIjwiIjwAAAAAAAAAAAAcIiAgICIcAAAAAAAAAAAAOCQiIiIkOAAAAAAAAAAAAD4gIDwgID4AAAAAAAAAAAA+ICA8ICAgAAAAAAAAAAAAHiAgJiIiHgAAAAAAAAAAACIiIj4iIiIAAAAAAAAAAAAcCAgICAgcAAAAAAAAAAAADgQEBAQkGAAAAAAAAAAAACIkKDAoJCIAAAAAAAAAAAAgICAgICA+AAAAAAAAAAAAIjYqKiIiIgAAAAAAAAAAACIiMiomIiIAAAAAAAAAAAAcIiIiIiIcAAAAAAAAAAAAPCIiPCAgIAAAAAAAAAAAABwiIiIqJBoAAAAAAAAAAAA8IiI8KCQiAAAAAAAAAAAAHCIgHAIiHAAAAAAAAAAAAD4ICAgICAgAAAAAAAAAAAAiIiIiIiIcAAAAAAAAAAAAIiIiFBQICAAAAAAAAAAAACIiIioqKhQAAAAAAAAAAAAiIhQIFCIiAAAAAAAAAAAAIiIUCAgICAAAAAAAAAAAAD4CBAgQID4AAAAAAAAAAAAOCAgICAgOAAAAAAAAAAAAQCAQCAQCAQAAAAAAAAAAADgICAgICDgAAAAAAAAAAAAIFCIAAAAAAAAAAAAAAAAAAAAAAAAAPgAAAAAAAAAAAAgIBAAAAAAAAAAAAAAAAAAAABwCHiIeAAAAAAAAAAAAICA8IiIiPAAAAAAAAAAAAAAAHCIgIBwAAAAAAAAAAAACAh4iIiIeAAAAAAAAAAAAAAAcIj4gHAAAAAAAAAAAAAwSOBAQEBAAAAAAAAAAAAAAABomIiYaAhwAAAAAAAAAICA8IiIiIgAAAAAAAAAAAAgAGAgICBwAAAAAAAAAAAACAAICAgICIhwAAAAAAAAAICAkKDQiIgAAAAAAAAAAABgICAgICBwAAAAAAAAAAAAAADQqKioqAAAAAAAAAAAAAAA8IiIiIgAAAAAAAAAAAAAAHCIiIhwAAAAAAAAAAAAAACwyIjIsICAAAAAAAAAAAAAaJiImGgICAAAAAAAAAAAALDIgICAAAAAAAAAAAAAAABwgHAIcAAAAAAAAAAAAEBA4EBASDAAAAAAAAAAAAAAAIiIiJhoAAAAAAAAAAAAAACIiIhQIAAAAAAAAAAAAAAAiIioqFAAAAAAAAAAAAAAAIhQIFCIAAAAAAAAAAAAAACIiIiYaAhwAAAAAAAAAAAA+BAgQPgAAAAAAAAAAAAwQECAQEAwAAAAAAAAAAAAICAgACAgIAAAAAAAAAAAAGAQEAgQEGAAAAAAAAAAAABAqBAAAAAAAAAAAAAAAAAAAHD4+PhwAAAAAAAAAAAA=";
-const H19CODE_ROM = decodeROM(H19CODE_ROM_B64);
-const H19FONT_ROM = decodeROM(H19FONT_ROM_B64);
-
 // Rohe Bus-Werte fuer IN 360 je Taste, aus RCK-Tabelle im Original-Quelltext.
 const ROM_KEY_BYTE = {
   0:0xFE, 1:0xFC, 2:0xFA, 3:0xF8, 4:0xF6, 5:0xF4, 6:0xF2, 7:0xF0,
@@ -838,12 +625,6 @@ function decodeRomSeg(byte){
 }
 
 let powered = false;
-let h19powered = false;
-// Ob das selbst geschriebene Echo-Demoprogramm bereits im H8-RAM steckt und
-// laeuft - wird bei RAM-Loeschung (RESET) oder H8-Abschalten wieder falsch,
-// damit es bei Bedarf automatisch neu eingetippt wird (siehe
-// maybeAutoLoadSerialEcho weiter unten).
-let serialEchoLoaded = false;
 const rom = {
   cpu:null, mem:null,
   digitSel:0, display:new Uint8Array(10).fill(0x7f), speakerOn:false,
@@ -852,18 +633,8 @@ const rom = {
   ionSeen:false, userSeen:false,
 };
 
-// Serielle H8-Seite fuer die H19-Anbindung: Port 350/351 oktal (0xE8/0xE9 hex).
-// WICHTIG - bewusst NICHT authentisch: es gibt kein Handbuch zur originalen
-// H8-Seriell-Interfacekarte in den verfuegbaren Unterlagen, PAM8 selbst kennt
-// gar keine Seriell-Routinen. Dies ist ein selbst entworfenes, denkbar
-// einfaches 2-Port-Protokoll (Daten/Status) nur fuer das Echo-Demoprogramm
-// weiter unten - keine Nachbildung einer realen Heath-Karte.
-// 350 oktal (Daten): OUT sendet ein Byte zum H19, IN liest ein empfangenes.
-// 351 oktal (Status): Bit0 = ein Byte vom H19 wartet zum Lesen.
 function romIoIn(port){
   if(port===0xF0) return rom.keyByte;
-  if(port===0xE8) return wire.toH8.length ? wire.toH8.shift() : 0x00;
-  if(port===0xE9) return wire.toH8.length ? 0x01 : 0x00;
   return 0xFF; // Kassette (370/371) nicht simuliert: "nichts angeschlossen"
 }
 function romIoOut(port,val){
@@ -877,7 +648,6 @@ function romIoOut(port,val){
     rom.speakerOn = speakerNow;
   }
   else if(port===0xF1){ if(rom.digitSel>=1 && rom.digitSel<=9) rom.display[rom.digitSel]=val; }
-  else if(port===0xE8){ wire.toH19.push(val & 0xFF); }
   // Port 370/371 (Kassette) wird ignoriert; LOAD/DUMP lassen sich im ROM-Modus
   // per CANCEL (entspricht Original-Verhalten bei Bandfehler) abbrechen.
 }
@@ -1005,9 +775,7 @@ function romDoReset(){
   rom.mem.fill(0, 1024);
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
   rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
-  serialEchoLoaded=false; // RAM (und damit das Echo-Demo) ist geloescht
   beep('long');
-  maybeAutoLoadSerialEcho();
 }
 function romDoRTM(){
   if(!powered) return;
@@ -1015,219 +783,6 @@ function romDoRTM(){
   if(rom.keyHoldTimer) clearTimeout(rom.keyHoldTimer);
   rom.keyHoldTimer = setTimeout(()=>{ romReleaseKey(); rom.keyHoldTimer=null; }, 120);
   beep('medium');
-}
-
-/* ================= H19-TERMINAL (echte Original-Firmware auf Z80-Kern) =================
- * Speicherkarte (verifiziert aus TERMROM*.MAC): ROM 0000-0FFF (4K, H19CODE.BIN),
- * Scratch-RAM ab 4000h (256 Byte, Stack bei 4100h), Video-RAM F800h-FFFFh (2048 Byte).
- * I/O: 40h-45h = INS8250-UART (Standardregister: 40h RBR/THR, 41h IER, 42h IIR,
- * 43h LCR, 44h MCR, 45h LSR), 60h/61h = Motorola-6845-CRTC (Index/Daten),
- * 80h/A0h = Tastatur (siehe h19KeyboardIn, Task "Tastatur-Eingabepfad"),
- * C0h/E0h = Keyclick/Bell.
- * WICHTIG: Die serielle H8-Seite ist NICHT original (kein H8-Handbuch zur
- * Seriellkarte verfuegbar) - klar gekennzeichneter Demo-Kompromiss, siehe H8-seitige
- * UART-Implementierung weiter unten. */
-
-// Virtuelles Nullmodemkabel: zwei Byte-Warteschlangen zwischen H8 und H19.
-const wire = { toH19: [], toH8: [] };
-
-const h19 = {
-  cpu:null, mem:null,
-  crtcIndex:0, crtcReg:new Uint8Array(32),
-  uartIER:0, uartLCR:0, uartMCR:0, uartDLL:1, uartDLM:0, uartDLAB:false,
-  uartRxByte:0, uartRxFull:false, uartRxIrqPending:false,
-  runHandle:null, stepCounter:0,
-  keyQueue:[],
-};
-
-function h19UartLSR(){
-  // Line Status Register: Bit0=Data Ready (RX), Bit5=THRE, Bit6=TSRE.
-  // Der Sender ist in dieser Emulation immer sofort "bereit" (kein Sendepuffer-
-  // Delay simuliert - Bytes gehen synchron auf die Leitung, siehe h19IoOut).
-  let lsr = 0x60;
-  if(h19.uartRxFull) lsr |= 0x01;
-  return lsr;
-}
-function h19IoIn(port){
-  switch(port){
-    case 0x40: // RBR, bzw. Baudratenteiler LSB wenn DLAB gesetzt
-      if(h19.uartDLAB) return h19.uartDLL;
-      { const v = h19.uartRxByte; h19.uartRxFull=false; h19.uartRxIrqPending=false; return v; }
-    case 0x41: return h19.uartDLAB ? h19.uartDLM : h19.uartIER;
-    case 0x42: // IIR: Standard-Prioritaet wie beim echten INS8250
-      if(h19.uartRxFull && (h19.uartIER & 0x01)) return 0x04; // "empfangene Daten verfuegbar"
-      return 0x01; // keine Unterbrechung ansteht
-    case 0x43: return h19.uartLCR;
-    case 0x44: return h19.uartMCR;
-    case 0x45: return h19UartLSR();
-    case 0x61: return h19.crtcReg[h19.crtcIndex] || 0;
-    case 0x80: case 0xA0: return h19KeyboardIn(port);
-    default: return 0xFF;
-  }
-}
-function h19IoOut(port,val){
-  switch(port){
-    case 0x40:
-      if(h19.uartDLAB){ h19.uartDLL=val; return; }
-      wire.toH8.push(val & 0xFF); // Senden: Byte geht auf die Leitung zum H8
-      return;
-    case 0x41:
-      if(h19.uartDLAB){ h19.uartDLM=val; return; }
-      h19.uartIER=val; return;
-    case 0x43: h19.uartLCR=val; h19.uartDLAB=!!(val&0x80); return;
-    case 0x44: h19.uartMCR=val; return;
-    case 0x60: h19.crtcIndex = val & 0x1F; return;
-    case 0x61: h19.crtcReg[h19.crtcIndex]=val; return;
-    case 0xC0: beep('short'); return; // Keyclick
-    case 0xE0: beep('medium'); return; // Bell (ESC ^G)
-    default: return;
-  }
-}
-// Tastatur-Eingabepfad: bewusste Design-Entscheidung (siehe Plan/Notizen).
-// Die rohe Tastaturmatrix-Kodierung ueber Port 80h/A0h (2-Byte-Warteschlange
-// aus Scancode + Statusbyte, siehe TERMROM-Quelltext um "IN A,(0A0H); XOR 0F6H")
-// haengt am 444-37-Tastatur-Encoder-ROM, dessen genaues Adressierungsschema
-// (Matrixposition -> Byte) sich ohne Schaltplan nicht zuverlaessig rekonstruieren
-// liess. Deshalb wird hier NICHT die Hardware-Tastatur nachgebaut, sondern beim
-// Tippen direkt das bekannte, dokumentierte H19-Tastaturausgabebyte (Standard-
-// ASCII, Heath-Escape-Sequenzen fuer Sondertasten) unten in h19SendKeyBytes()
-// erzeugt und direkt auf die serielle Leitung zum H8 gelegt - so, als haette
-// die (unveraendert originale) Tastatur-Firmware die Uebersetzung bereits
-// erledigt. Die Ports 80h/A0h melden dadurch dauerhaft "keine Taste":
-// IN A,(0A0H) liefert 0xFF, XOR 0F6H ergibt Bit7=0 -> die ISR-Pruefung
-// "Bit7 gesetzt?" bleibt negativ, der interne Scan-Zweig bleibt inaktiv,
-// ohne die uebrige (original laufende) Firmware zu stoeren.
-function h19KeyboardIn(port){ return 0xFF; }
-
-// Bekannte H19-Tastenausgabe (Heath-natives Modus, keine ANSI-Klammer-Syntax):
-// Pfeiltasten/HOME als ESC+Buchstabe, wie im H19-Handbuch dokumentiert.
-const H19_SPECIAL_KEYS = {
-  'ArrowUp':[0x1B,0x41], 'ArrowDown':[0x1B,0x42], 'ArrowRight':[0x1B,0x43], 'ArrowLeft':[0x1B,0x44],
-  'Home':[0x1B,0x48], 'Enter':[0x0D], 'Backspace':[0x08], 'Tab':[0x09], 'Escape':[0x1B],
-  'Delete':[0x7F],
-};
-function h19KeyToBytes(e){
-  if(e.ctrlKey && e.key.length===1){
-    const c = e.key.toUpperCase().charCodeAt(0);
-    if(c>=0x40 && c<=0x5F) return [c & 0x1F]; // Strg+Buchstabe/Sonderzeichen
-  }
-  if(H19_SPECIAL_KEYS[e.key]) return H19_SPECIAL_KEYS[e.key];
-  if(e.key.length===1) return [e.key.charCodeAt(0) & 0x7F];
-  return null;
-}
-function h19SendKeyBytes(bytes){
-  if(!h19powered) return;
-  for(const b of bytes) wire.toH8.push(b & 0xFF);
-  beep('short'); // Keyclick - im Original ueber Port C0h, hier direkt ausgeloest
-}
-
-function h19PowerOn(){
-  const mem = new Uint8Array(65536);
-  mem.set(H19CODE_ROM, 0);
-  h19.mem = mem;
-  h19.crtcIndex=0; h19.crtcReg.fill(0);
-  h19.uartIER=0; h19.uartLCR=0; h19.uartMCR=0; h19.uartDLL=1; h19.uartDLM=0; h19.uartDLAB=false;
-  h19.uartRxByte=0; h19.uartRxFull=false; h19.uartRxIrqPending=false;
-  h19.stepCounter=0; h19.keyQueue.length=0;
-  const c = new CPU(mem, new Uint8Array(256), true);
-  c.onIn = h19IoIn; c.onOut = h19IoOut;
-  c.pc = 0;
-  h19.cpu = c;
-  h19RunLoop();
-}
-function h19PowerOff(){
-  if(h19.runHandle){ cancelAnimationFrame(h19.runHandle); h19.runHandle=null; }
-  h19.cpu=null;
-}
-function h19RunLoop(){
-  function frame(){
-    if(!h19powered || !h19.cpu){ h19.runHandle=null; return; }
-    const c = h19.cpu;
-    for(let i=0;i<6000;i++){
-      // Eingehendes Byte von der Leitung in den UART-Empfangspuffer uebernehmen,
-      // sobald Platz ist - und bei aktivierter RX-Interrupt-Freigabe (IER Bit 0)
-      // per IM1 nach 0038h unterbrechen (Arbeitshypothese: die Original-Firmware
-      // ist wie ein klassisches 8250-Terminal interrupt-getrieben; siehe Notizen).
-      // Wichtig: iff ist bei laufendem Interrupt-Betrieb nur einen Bruchteil der
-      // Zeit true (DI/EI wechseln staendig) - ein einmaliger Check genau beim
-      // Eintreffen des Bytes wuerde das Fenster fast immer verpassen. Deshalb
-      // wird bei jedem einzelnen Schritt erneut versucht, bis iff wieder true
-      // ist, statt nur einmalig beim Eintreffen.
-      if(!h19.uartRxFull && wire.toH19.length){
-        h19.uartRxByte = wire.toH19.shift();
-        h19.uartRxFull = true;
-        h19.uartRxIrqPending = true;
-      }
-      if(h19.uartRxIrqPending && c.iff && (h19.uartIER & 0x01)){
-        c.interrupt(0x0038);
-        h19.uartRxIrqPending = false;
-      }
-      if(c.halted){
-        if(c.iff){ c.interrupt(0x0038); } else break;
-      }
-      c.step();
-      h19.stepCounter++;
-    }
-    h19Render();
-    h19.runHandle = requestAnimationFrame(frame);
-  }
-  h19.runHandle = requestAnimationFrame(frame);
-}
-/* ================= H19-Bildschirm: Zeichensatz-ROM pixelgenau auf Canvas ================= */
-const H19_COLS=80, H19_ROWS=24, H19_CELL_W=8, H19_SCALE=2;
-const H19_FG='#41ff74', H19_BG='#04150a';
-let h19Canvas=null, h19Ctx=null;
-function h19EnsureCanvas(){
-  if(h19Ctx) return;
-  h19Canvas = document.getElementById('h19-screen');
-  if(!h19Canvas) return;
-  h19Ctx = h19Canvas.getContext('2d');
-}
-function h19Render(){
-  h19EnsureCanvas();
-  if(!h19Ctx) return;
-  const ctx=h19Ctx;
-  // Aktive Rasterzeilen je Zeichen kommen aus CRTC-Register 9 (Max Scan Line),
-  // Standardwert 9 (=10 Zeilen) bevor die Firmware es initialisiert hat.
-  const cellH = (h19powered && h19.cpu ? (h19.crtcReg[9]||9) : 9) + 1;
-  const w = H19_COLS*H19_CELL_W*H19_SCALE, h = H19_ROWS*cellH*H19_SCALE;
-  if(h19Canvas.width!==w || h19Canvas.height!==h){ h19Canvas.width=w; h19Canvas.height=h; }
-  ctx.fillStyle = H19_BG;
-  ctx.fillRect(0,0,w,h);
-  if(!h19powered || !h19.cpu) return;
-  const startAddr = ((h19.crtcReg[12]<<8)|h19.crtcReg[13]) & 0x7FF;
-  // Der Cursor wird NICHT aus dem 6845-Register (14/15) gelesen - die Firmware
-  // synchronisiert dieses beim einfachen Zeichenschreiben offenbar nicht bei
-  // jedem Byte (empirisch geprueft: bleibt 0/0). Stattdessen direkt der interne
-  // RAM-Schreibzeiger der Firmware (Scratch-RAM 40BCh, verifiziert: wandert
-  // nach jedem geschriebenen Zeichen exakt um 1 weiter).
-  const cursorAddr = (((h19.mem[0x40BD]<<8)|h19.mem[0x40BC]) - 0xF800) & 0x7FF;
-  for(let row=0; row<H19_ROWS; row++){
-    for(let col=0; col<H19_COLS; col++){
-      const off = (startAddr + row*H19_COLS + col) & 0x7FF;
-      const raw = h19.mem[0xF800+off];
-      const glyph = raw & 0x7F;
-      const inverse = !!(raw & 0x80);
-      const base = glyph*16;
-      const px = col*H19_CELL_W*H19_SCALE, py = row*cellH*H19_SCALE;
-      if(inverse){
-        ctx.fillStyle = H19_FG;
-        ctx.fillRect(px,py,H19_CELL_W*H19_SCALE,cellH*H19_SCALE);
-      }
-      ctx.fillStyle = inverse ? H19_BG : H19_FG;
-      for(let ry=0; ry<cellH; ry++){
-        const bits = H19FONT_ROM[base+ry] || 0;
-        if(!bits) continue;
-        for(let rx=0; rx<H19_CELL_W; rx++){
-          if((bits>>(7-rx))&1) ctx.fillRect(px+rx*H19_SCALE, py+ry*H19_SCALE, H19_SCALE, H19_SCALE);
-        }
-      }
-      if(off===cursorAddr){
-        ctx.fillStyle = H19_FG;
-        ctx.fillRect(px, py+(cellH-2)*H19_SCALE, H19_CELL_W*H19_SCALE, 2*H19_SCALE);
-      }
-    }
-  }
 }
 
 let muted=false;
@@ -1300,14 +855,12 @@ function powerOn(){
   document.getElementById('power-toggle').classList.add('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','true');
   romPowerOn();
-  maybeAutoLoadSerialEcho();
 }
 function powerOff(){
   powered=false;
   document.getElementById('power-toggle').classList.remove('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','false');
   romPowerOff();
-  serialEchoLoaded=false; // naechstes Einschalten hat wieder leeres RAM
 }
 function togglePower(){ powered ? powerOff() : powerOn(); }
 
@@ -1387,54 +940,6 @@ async function romLoadInitialTestRoutine(btn){
   }
 }
 
-// Selbst geschriebenes Demoprogramm (kein Original-Handbuchcode!) fuer die
-// H19-Anbindung: liest an Adresse 040300 oktal fortlaufend Port 351 (Status),
-// wartet auf Bit0 (Byte vom H19 wartet), liest es von Port 350 und schickt es
-// sofort per OUT 350 zurueck - ein einfaches Echo, das den kompletten
-// Rundlauf Tippen->H19->H8->H19->Anzeige sichtbar macht.
-// WICHTIG (empirisch ermittelt, siehe H19-Notizen): die Adresseingabe am
-// Frontpanel behandelt die 6 Ziffern NICHT als eine fortlaufende oktale
-// Zahl, sondern als zwei getrennte 3-stellige oktale BYTES (hi dann lo,
-// je 000-377 gueltig) - "040300" ergibt also (040 oktal)*256+(300 oktal)
-// = 0x20*256+0xC0 = 0x20C0, NICHT 0x40C0. Per Marker-Byte-Schreibtest
-// verifiziert. Die Sprungziele unten sind entsprechend auf 0x20C0 gesetzt.
-//   20C0: IN 351 ; ANI 1 ; JZ 20C0 ; IN 350 ; OUT 350 ; JMP 20C0
-const SERIAL_ECHO_DEMO = [0o333,0o351,0o346,0o001,0o312,0o300,0o040,0o333,0o350,0o323,0o350,0o303,0o300,0o040];
-async function romLoadSerialEcho(btn){
-  if(btn.disabled) return;
-  btn.disabled=true; const label=btn.textContent; btn.textContent='Tippt …';
-  try{
-    if(!powered){ powerOn(); await delay(800); }
-    await romPressAndRelease(ROM_KEY_BYTE.MEM, 60, 50);
-    await romTypeDigits([0,4,0,3,0,0], 60, 50);
-    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
-    for(const val of SERIAL_ECHO_DEMO){
-      const digs=val.toString(8).padStart(3,'0').split('').map(Number);
-      await romTypeDigits(digs, 60, 50);
-    }
-    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 80);
-    await romPressAndRelease(ROM_KEY_BYTE.REG, 60, 50);
-    await romPressAndRelease(ROM_KEY_BYTE[6], 60, 50);
-    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
-    await romTypeDigits([0,4,0,3,0,0], 60, 50);
-    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
-    await romPressAndRelease(ROM_KEY_BYTE[4], 60, 50); // GO - Programm startet sofort
-  } finally {
-    btn.disabled=false; btn.textContent=label;
-  }
-}
-// Sobald H8 UND H19 beide eingeschaltet sind, das Echo-Demo automatisch
-// eintippen und starten - ohne diesen Schritt kennt PAM8 keine seriellen
-// Routinen und der H19-Bildschirm bleibt beim Tippen stumm. Wird von
-// powerOn(), h19TogglePower() und romDoReset() aus aufgerufen; der
-// serialEchoLoaded-Merker verhindert wiederholtes/doppeltes Auto-Laden.
-function maybeAutoLoadSerialEcho(){
-  if(!powered || !h19powered || serialEchoLoaded) return;
-  serialEchoLoaded = true;
-  const btn = document.getElementById('btn-serial-echo');
-  if(btn) romLoadSerialEcho(btn);
-}
-
 /* ================= EVENT WIRING ================= */
 function keyByteForButton(btn){
   if(btn.dataset.num!==undefined) return ROM_KEY_BYTE[parseInt(btn.dataset.num,10)];
@@ -1508,41 +1013,9 @@ window.addEventListener('keyup',(e)=>{
   if('mracld+=-'.includes(k)) romReleaseKey();
 });
 
-/* ===== H19: Netzschalter + Tastatur-Fokus-Eingabe ===== */
-function h19TogglePower(){
-  h19powered = !h19powered;
-  const t = document.getElementById('h19-power-toggle');
-  t.classList.toggle('on', h19powered);
-  t.setAttribute('aria-checked', h19powered?'true':'false');
-  if(h19powered){ h19PowerOn(); beep('medium'); maybeAutoLoadSerialEcho(); }
-  else { h19PowerOff(); h19Render(); }
-}
-const h19PowerToggleEl = document.getElementById('h19-power-toggle');
-h19PowerToggleEl.addEventListener('click', h19TogglePower);
-h19PowerToggleEl.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); h19TogglePower(); } });
-
-const h19Frame = document.getElementById('h19-screen-frame');
-h19Frame.addEventListener('click', ()=> h19Frame.focus());
-h19Frame.addEventListener('focus', ()=> h19Frame.classList.add('focused'));
-h19Frame.addEventListener('blur', ()=> h19Frame.classList.remove('focused'));
-// stopPropagation, damit dieselbe Taste nicht zusaetzlich vom H8-Frontpanel-
-// Handler (auf window) verarbeitet wird, waehrend der H19-Bildschirm fokussiert ist.
-h19Frame.addEventListener('keydown', (e)=>{
-  if(e.repeat) return;
-  if(!h19powered) return;
-  const bytes = h19KeyToBytes(e);
-  if(bytes){ h19SendKeyBytes(bytes); e.preventDefault(); e.stopPropagation(); }
-});
-
-document.getElementById('btn-serial-echo').addEventListener('click', (e)=> romLoadSerialEcho(e.currentTarget));
-
 romRender();
-h19Render();
-if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romLoadSerialEcho, romDoReset, romDoRTM,
-  CPU, h19PowerOn, h19PowerOff, h19, wire, H19FONT_ROM, H19CODE_ROM,
-  get h19powered(){return h19powered;}, set h19powered(v){h19powered=v;}, h19KeyToBytes, h19SendKeyBytes,
-  get serialEchoLoaded(){return serialEchoLoaded;}, maybeAutoLoadSerialEcho, h19TogglePower,
-  h19Render, h19EnsureCanvas, get h19Ctx(){return h19Ctx;}, get h19Canvas(){return h19Canvas;} }; }
+if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romDoReset, romDoRTM,
+  CPU }; }
 })();
 </script>
 </body>
