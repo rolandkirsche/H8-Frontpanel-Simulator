@@ -72,12 +72,12 @@
   .display-window{
     background:#0a0a0a;border-radius:4px;padding:13px 14px;
     box-shadow:inset 0 2px 6px rgba(0,0,0,.8), inset 0 0 0 1px #000;
-    display:flex;align-items:center;justify-content:center;gap:3px;flex-wrap:nowrap;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;
     min-height:70px;
   }
+  .addr-group,.data-group{display:flex;gap:3px;flex:0 0 auto;}
   .digit{position:relative;width:26px;height:44px;flex:0 0 auto;}
-  .digit:nth-child(3){margin-right:9px;}
-  .digit:nth-child(6){margin-right:9px;}
+  .addr-group .digit:nth-child(3){margin-right:9px;}
   .seg{position:absolute;background:var(--led-off);transition:background-color .04s,box-shadow .04s;}
   .seg.on{background:var(--led-on);box-shadow:0 0 5px 1.5px var(--led-glow), 0 0 12px 3px rgba(255,54,35,.35);}
   .seg-a,.seg-g,.seg-d{left:4px;width:18px;height:4.5px;clip-path:polygon(14% 0,86% 0,100% 50%,86% 100%,14% 100%,0 50%);}
@@ -106,8 +106,6 @@
   .key .sub:not(.sub-tl):not(.sub-br){top:3px;left:0;right:0;text-align:center;font-size:8px;color:#ffd9a0;}
   .key .sub-tl{top:2px;left:3px;}
   .key .sub-br{bottom:2px;right:3px;}
-  .key[data-action="MEM"] .legend,.key[data-action="REG"] .legend,.key[data-action="ALTER"] .legend,
-  .key[data-action="CANCEL"] .legend,.key[data-action="LOAD"] .legend,.key[data-action="DUMP"] .legend{font-size:10.5px;}
 
   .brand-block{margin-top:auto;padding-top:20px;}
   .wordmark{display:block;font-style:italic;font-weight:800;font-size:21px;letter-spacing:-0.01em;color:var(--badge);}
@@ -186,25 +184,25 @@
           </div>
 
           <div class="keypad" id="keypad">
-            <button class="key" data-action="MEM"><span class="legend">MEM</span><span class="sub-br sub">RTM/∅</span></button>
-            <button class="key" data-action="REG"><span class="legend">REG</span></button>
-            <button class="key" data-action="ALTER"><span class="legend">ALTER</span><span class="sub-br sub">RST/∅</span></button>
-            <button class="key" data-action="CANCEL"><span class="legend">CANCEL</span></button>
-
-            <button class="key" data-num="0"><span class="legend">0</span></button>
-            <button class="key" data-num="1"><span class="legend">1</span><span class="sub sub-tl">SP</span></button>
-            <button class="key" data-num="2"><span class="legend">2</span><span class="sub sub-tl">AF</span></button>
-            <button class="key" data-num="3"><span class="legend">3</span><span class="sub sub-tl">BC</span></button>
+            <button class="key" data-num="7"><span class="legend">7</span><span class="sub sub-br">SI</span></button>
+            <button class="key" data-action="LOAD"><span class="legend">8</span><span class="sub sub-br">LOAD</span></button>
+            <button class="key" data-action="DUMP"><span class="legend">9</span><span class="sub sub-br">DUMP</span></button>
+            <button class="key" data-action="PLUS"><span class="legend">+</span></button>
 
             <button class="key" data-num="4"><span class="legend">4</span><span class="sub sub-tl">DE</span><span class="sub sub-br">GO</span></button>
             <button class="key" data-num="5"><span class="legend">5</span><span class="sub sub-tl">HL</span><span class="sub sub-br">IN</span></button>
             <button class="key" data-num="6"><span class="legend">6</span><span class="sub sub-tl">PC</span><span class="sub sub-br">OUT</span></button>
-            <button class="key" data-num="7"><span class="legend">7</span><span class="sub sub-tl">SI</span></button>
-
-            <button class="key" data-action="PLUS"><span class="legend">+</span></button>
             <button class="key" data-action="MINUS"><span class="legend">−</span></button>
-            <button class="key" data-action="LOAD"><span class="legend">LOAD</span></button>
-            <button class="key" data-action="DUMP"><span class="legend">DUMP</span></button>
+
+            <button class="key" data-num="1"><span class="legend">1</span><span class="sub sub-tl">SP</span></button>
+            <button class="key" data-num="2"><span class="legend">2</span><span class="sub sub-tl">AF</span></button>
+            <button class="key" data-num="3"><span class="legend">3</span><span class="sub sub-tl">BC</span></button>
+            <button class="key" data-action="CANCEL"><span class="legend">*</span><span class="sub sub-br">CANCEL</span></button>
+
+            <button class="key" data-num="0"><span class="legend">0</span></button>
+            <button class="key" data-action="REG"><span class="legend">.</span><span class="sub sub-tl">REG</span></button>
+            <button class="key" data-action="MEM"><span class="legend">#</span><span class="sub sub-tl">MEM</span><span class="sub sub-br">RTM/∅</span></button>
+            <button class="key" data-action="ALTER"><span class="legend">/</span><span class="sub sub-tl">ALTER</span><span class="sub sub-br">RST/∅</span></button>
           </div>
         </div>
 
@@ -296,8 +294,11 @@
     8080A-Emulator. Port-Protokoll (360/361), Tastenmatrix und Zeichentabellen empirisch aus dem laufenden ROM sowie
     aus dem Original-Quelltext <code>XCON8 ROM.asm</code> (T. Gulczynski Re-Creation, 2009) verifiziert. Kassette
     (Port 370/371) ist nicht angeschlossen — LOAD/DUMP warten wie am Original auf ein Bandgerät, mit CANCEL abbrechbar.
-    Die exakte physische Tastenanordnung des Originals ist nicht photographisch verifiziert und daher funktional statt
-    pixelgenau nachgebildet; Flag-Feinheiten des 8080A (insbesondere DAA/Auxiliary-Carry bei Subtraktion) sind vereinfacht.
+    Die physische Tastenanordnung entspricht dem wiederverwendeten Taschenrechner-Tastenfeld des Originals (große
+    Beschriftung 0–9/+/−/*/./#/, kleine aufgeklebte Funktionslabel) — abgeglichen mit dem Keyboard-Label-Pictorial im
+    Original-Zusammenbauhandbuch (595-2013-01, S. 47) sowie dem <code>h8.lay</code>-Tastenfeld-Layout aus MAME
+    (Heath/Zenith-H8-Treiber von J. Tranter). Flag-Feinheiten des 8080A (insbesondere DAA/Auxiliary-Carry bei
+    Subtraktion) sind vereinfacht.
   </footer>
 </div>
 
@@ -828,11 +829,14 @@ function beep(kind){
 const digitEls=[];
 (function buildDigits(){
   const row=document.getElementById('display-row');
+  const addrGroup=document.createElement('div'); addrGroup.className='addr-group';
+  const dataGroup=document.createElement('div'); dataGroup.className='data-group';
+  row.appendChild(addrGroup); row.appendChild(dataGroup);
   for(let i=0;i<9;i++){
     const d=document.createElement('div');
     d.className='digit';
     d.innerHTML = SEG_LETTERS.map(s=>'<i class="seg seg-'+s+'"></i>').join('') + '<i class="dp"></i>';
-    row.appendChild(d);
+    (i<6?addrGroup:dataGroup).appendChild(d);
     const segEls={};
     SEG_LETTERS.forEach(s=>{ segEls[s]=d.querySelector('.seg-'+s); });
     digitEls.push({segEls, dp:d.querySelector('.dp')});
