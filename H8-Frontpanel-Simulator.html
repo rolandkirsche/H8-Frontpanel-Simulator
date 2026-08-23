@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Heathkit H8 – Frontpanel-Nachbildung</title>
+<title>Heathkit H8 – Frontpanel-Nachbildung mit H9-Terminal</title>
 </head>
 <body>
 <style>
@@ -127,6 +127,32 @@
   .hint{font-size:11px;color:var(--ink-soft);line-height:1.4;max-width:520px;}
   button.util:disabled{opacity:.4;cursor:not-allowed;}
 
+  /* ============ H9 TERMINAL ============ */
+  .h9-stage{margin-top:44px;}
+  .h9-case{
+    width:100%;max-width:720px;margin:0 auto;border-radius:10px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.5), 0 8px 20px -6px rgba(0,0,0,.35);
+    background:var(--case-black);
+  }
+  .h9-panel{
+    background:linear-gradient(180deg,var(--putty-hi),var(--putty) 12%, var(--putty));
+    padding:22px 22px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .h9-screen-frame{
+    width:100%;background:#0a0a0a;border-radius:6px;padding:16px;
+    box-shadow:inset 0 2px 10px rgba(0,0,0,.85), inset 0 0 0 1px #000;
+    display:flex;justify-content:center;position:relative;cursor:text;
+  }
+  .h9-screen-frame.focused{box-shadow:inset 0 2px 10px rgba(0,0,0,.85), inset 0 0 0 1px #000, 0 0 0 2px var(--badge);}
+  #h9-screen{width:100%;max-width:640px;height:auto;display:block;}
+  .h9-screen-hint{
+    position:absolute;bottom:6px;right:14px;font-size:9px;letter-spacing:.06em;
+    color:#3a5540;pointer-events:none;
+  }
+  .h9-screen-frame.focused .h9-screen-hint{display:none;}
+  @media (prefers-color-scheme: dark){ #h9-screen{filter:brightness(1.05);} }
+  .h9-note{font-size:11px;color:var(--ink-soft);line-height:1.5;max-width:640px;text-align:center;margin:0 auto;}
+
   /* ============ HELP / INSTRUCTIONS ============ */
   .panel-below{margin-top:44px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start;}
   .card-stack{display:flex;flex-direction:column;gap:18px;min-width:0;}
@@ -224,6 +250,56 @@
     </div>
   </div>
 
+  <div class="h9-stage">
+    <div class="h9-case">
+      <div class="h8-vent"></div>
+      <div class="h9-panel">
+        <div class="h9-screen-frame" id="h9-screen-frame" tabindex="0" aria-label="H9-Bildschirm, anklicken und tippen">
+          <canvas id="h9-screen"></canvas>
+          <span class="h9-screen-hint">Klicken, dann tippen</span>
+        </div>
+        <div class="brand-block">
+          <span class="wordmark">heathkit</span>
+          <span class="model-tag">Video Terminal &middot; Model H9</span>
+        </div>
+      </div>
+      <div class="h8-base"></div>
+    </div>
+
+    <div class="rear-controls">
+      <div class="power-switch">
+        <div class="toggle" id="h9-power-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="H9-Netzschalter"><i></i></div>
+        <label for="h9-power-toggle">POWER <span>(H9-Terminal)</span></label>
+      </div>
+      <div class="hint">Bildschirm anklicken, dann direkt auf der Computertastatur tippen. Pfeiltasten, <kbd>Home</kbd>,
+      <kbd>End</kbd> und <kbd>Bild ab</kbd> wirken rein lokal (Cursor, Zeile/Seite löschen); <kbd>Enter</kbd>,
+      <kbd>Esc</kbd>, <kbd>Rückschritt</kbd>/<kbd>Entf</kbd> (RUBOUT) und Strg+Taste werden über die serielle
+      Leitung zum H8 gesendet.</div>
+    </div>
+    <div class="rear-controls">
+      <div class="power-switch">
+        <div class="toggle" id="h9-duplex-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Full Duplex"><i></i></div>
+        <label for="h9-duplex-toggle">FULL DUPLEX <span>(aus = Halbduplex/Lokal-Echo)</span></label>
+      </div>
+      <div class="power-switch">
+        <div class="toggle" id="h9-autocarry-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Auto Carry"><i></i></div>
+        <label for="h9-autocarry-toggle">AUTO CARRY <span>(aus = kein Zeilenumbruch)</span></label>
+      </div>
+      <div class="power-switch">
+        <div class="toggle" id="h9-scroll-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Scroll"><i></i></div>
+        <label for="h9-scroll-toggle">SCROLL <span>(aus = Hold Screen bei voller Seite)</span></label>
+      </div>
+    </div>
+    <p class="h9-note">Funktionale Nachbildung des H9-Video-Terminals nach der Original-Bedienungsanleitung
+    (Heath Teilenr. 595-2017-03): 12 Zeilen zu 80 Zeichen, weißer P4-Phosphor. Das Original arbeitet mit reiner
+    TTL-/MSI-Logik statt CPU und ROM – es gibt also keine Firmware zum Nachbauen, und anders als beim späteren H19
+    kann der Rechner dem H9 keine Cursor-Steuercodes schicken: von den 32 ASCII-Steuerzeichen wirken nur
+    <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code> überhaupt
+    etwas, laut Handbuch gleichermaßen von Tastatur wie Leitung. FULL DUPLEX, AUTO CARRY und SCROLL sind echte
+    Kippschalter mit „ausgerastet“ als Grundstellung; SHORT FORM, PLOT-Modus, Baudraten-Wahl, OFF LINE, BREAK und
+    XMIT PAGE aus dem Original sind hier nicht nachgebildet.</p>
+  </div>
+
   <div class="panel-below">
     <div class="card">
       <h2>Bedienung</h2>
@@ -287,6 +363,23 @@
         </div>
       </div>
     </div>
+    <div class="card">
+      <h2>H9-Terminal anbinden</h2>
+      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle – deshalb tippt der Simulator automatisch ein kleines,
+      selbst geschriebenes Echo-Programm (14 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und
+      startet es per <code>GO</code>, sobald H8 <strong>und</strong> H9 eingeschaltet sind. Es wartet auf ein Byte
+      vom H9 und schickt es sofort zurück – kein manueller Klick nötig.</p>
+      <p>Einfach H9 einschalten, auf den Bildschirm klicken und tippen – jedes Zeichen läuft echt über die serielle
+      Leitung zum H8 und von dort zurück zum H9-Bildschirm. Der Button unten lädt das Echo-Programm bei Bedarf
+      manuell neu (z. B. nach eigenen Experimenten im H8-Speicher).</p>
+      <p>In der Grundstellung (FULL DUPLEX ausgerastet) zeigt das H9 Getipptes sofort selbst an – <strong>und</strong>
+      schickt es zum H8, das es ebenfalls zurückechot. Beides zusammen zeigt jedes Zeichen doppelt: genau das
+      Verhalten, das am echten Halbduplex-Terminal an einem ebenfalls echoenden Rechner auftritt. Mit FULL DUPLEX
+      eingerastet zeigt das H9 nur noch, was tatsächlich vom H8 zurückkommt.</p>
+      <div class="actions">
+        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
+      </div>
+    </div>
   </div>
 
   <footer class="note">
@@ -299,6 +392,18 @@
     Original-Zusammenbauhandbuch (595-2013-01, S. 47) sowie dem <code>h8.lay</code>-Tastenfeld-Layout aus MAME
     (Heath/Zenith-H8-Treiber von J. Tranter). Flag-Feinheiten des 8080A (insbesondere DAA/Auxiliary-Carry bei
     Subtraktion) sind vereinfacht.
+    <br><br>
+    Das H9-Terminal ist eine funktionale Nachbildung nach der Original-Bedienungsanleitung (Heath Teilenr.
+    595-2017-03): 12 Zeilen zu 80 Zeichen (960 Zeichen, 5×7-Punktraster, nur Großbuchstaben), reines
+    TTL-/MSI-Logikgerät ohne CPU oder ROM – es existiert also keine Firmware, die sich nachbauen ließe.
+    Zeichendarstellung, die vier wirksamen Steuerzeichen (Back Space, Bell, Line Feed, Carriage Return), die
+    lokalen Cursor-/Löschtasten sowie Full-Duplex/Auto-Carry/Scroll/Hold-Screen-Verhalten sind direkt aus dem
+    Handbuch (Abschnitte „Operation“, S. 4–8, und „Specifications“, S. 32) übernommen. Laut Handbuch (S. 10,
+    „Heathkit Computer System Interface Standard“) lief die echte H8↔H9-Verbindung mit 600 Baud, EIA/RS-232C,
+    8 Datenbits, keine Parität – hier läuft die simulierte serielle Leitung dagegen verzögerungsfrei. Die
+    H8-seitige Portbelegung (350/351 oktal) ist mangels erhaltener H8-Seriellkarten-Unterlagen ein selbst
+    entworfener, nicht-authentischer Demo-Port, keine Nachbildung einer realen Heath-Karte. Short Form, Plot-Modus,
+    die sieben wählbaren Baudraten, Off Line, Break und Xmit Page aus dem Original sind nicht nachgebildet.
   </footer>
 </div>
 
@@ -626,6 +731,14 @@ function decodeRomSeg(byte){
 }
 
 let powered = false;
+let h9powered = false;
+// Ob das selbst geschriebene Echo-Demoprogramm bereits im H8-RAM steckt und
+// laeuft - wird bei RAM-Loeschung (RESET) oder H8-Abschalten wieder falsch,
+// damit es bei Bedarf automatisch neu eingetippt wird (siehe
+// maybeAutoLoadSerialEcho weiter unten).
+let serialEchoLoaded = false;
+// Virtuelles Nullmodemkabel: zwei Byte-Warteschlangen zwischen H8 und H9.
+const wire = { toH8: [], toH9: [] };
 const rom = {
   cpu:null, mem:null,
   digitSel:0, display:new Uint8Array(10).fill(0x7f), speakerOn:false,
@@ -634,8 +747,18 @@ const rom = {
   ionSeen:false, userSeen:false,
 };
 
+// Serielle H8-Seite fuer die H9-Anbindung: Port 350/351 oktal (0xE8/0xE9 hex).
+// WICHTIG - bewusst NICHT authentisch: es gibt kein Handbuch zur originalen
+// H8-Seriell-Interfacekarte in den verfuegbaren Unterlagen, PAM8 selbst kennt
+// gar keine Seriell-Routinen. Dies ist ein selbst entworfenes, denkbar
+// einfaches 2-Port-Protokoll (Daten/Status) nur fuer das Echo-Demoprogramm
+// weiter unten - keine Nachbildung einer realen Heath-Karte.
+// 350 oktal (Daten): OUT sendet ein Byte zum H9, IN liest ein empfangenes.
+// 351 oktal (Status): Bit0 = ein Byte vom H9 wartet zum Lesen.
 function romIoIn(port){
   if(port===0xF0) return rom.keyByte;
+  if(port===0xE8) return wire.toH8.length ? wire.toH8.shift() : 0x00;
+  if(port===0xE9) return wire.toH8.length ? 0x01 : 0x00;
   return 0xFF; // Kassette (370/371) nicht simuliert: "nichts angeschlossen"
 }
 function romIoOut(port,val){
@@ -649,6 +772,7 @@ function romIoOut(port,val){
     rom.speakerOn = speakerNow;
   }
   else if(port===0xF1){ if(rom.digitSel>=1 && rom.digitSel<=9) rom.display[rom.digitSel]=val; }
+  else if(port===0xE8){ wire.toH9.push(val & 0xFF); }
   // Port 370/371 (Kassette) wird ignoriert; LOAD/DUMP lassen sich im ROM-Modus
   // per CANCEL (entspricht Original-Verhalten bei Bandfehler) abbrechen.
 }
@@ -776,7 +900,9 @@ function romDoReset(){
   rom.mem.fill(0, 1024);
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
   rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
+  serialEchoLoaded=false; // RAM (und damit das Echo-Demo) ist geloescht
   beep('long');
+  maybeAutoLoadSerialEcho();
 }
 function romDoRTM(){
   if(!powered) return;
@@ -784,6 +910,201 @@ function romDoRTM(){
   if(rom.keyHoldTimer) clearTimeout(rom.keyHoldTimer);
   rom.keyHoldTimer = setTimeout(()=>{ romReleaseKey(); rom.keyHoldTimer=null; }, 120);
   beep('medium');
+}
+
+/* ================= H9-TERMINAL (nach Original-Bedienungsanleitung 595-2017-03) =================
+ * Das echte H9 ist reine TTL-/MSI-Logik ohne Mikroprozessor - es gibt keine Firmware,
+ * die sich nachbauen liesse. Verhalten hier so genau wie im Original-Handbuch beschrieben
+ * nachgebildet: 12 Zeilen x 80 Zeichen (960 Zeichen, Handbuch S.32), nur BACK SPACE,
+ * BELL, LINE FEED und CARRIAGE RETURN haben ueberhaupt eine Wirkung - alle anderen der
+ * 32 ASCII-Steuerzeichen (inkl. ESC) werden laut Handbuch S.8 weder dargestellt noch ins
+ * Bild-RAM geschrieben, egal ob von der Tastatur oder ueber die Leitung. Pfeiltasten,
+ * HOME und die Loeschfunktionen sind reine "Local Function Keys" ohne Sendewirkung
+ * (Handbuch S.4). FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter mit
+ * "ausgerastet" als Grundstellung (Handbuch S.5, S.7f). KEIN Anspruch auf Bit-genaue
+ * Schaltungssimulation; SHORT FORM, PLOT, BAUD RATE, OFF LINE, BREAK und XMIT PAGE aus
+ * dem Original sind hier nicht nachgebildet. Die serielle H8-Seite ist wie beim
+ * Anschluss selbst ein selbst entworfener Demo-Port (siehe romIoIn/romIoOut oben).
+ */
+const H9_COLS=80, H9_ROWS=12;
+const h9 = {
+  buf:null, row:0, col:0, flashUntil:0,
+  fullDuplex:false, // ausgerastet = Halbduplex/Lokal-Echo, die Grundstellung lt. Handbuch S.7
+  autoCarry:false,  // ausgerastet = kein automatischer Zeilenumbruch, Grundstellung lt. Handbuch S.5
+  scroll:false,     // ausgerastet = kein Auto-Scroll -> HOLD SCREEN bei vollem Bild, Handbuch S.5/S.8
+  hold:false,
+  runHandle:null,
+};
+function h9ResetScreen(){
+  h9.buf = new Uint8Array(H9_COLS*H9_ROWS).fill(0x20);
+  h9.row=0; h9.col=0; h9.hold=false;
+}
+function h9ScrollUp(){
+  h9.buf.copyWithin(0, H9_COLS, H9_COLS*H9_ROWS);
+  h9.buf.fill(0x20, H9_COLS*(H9_ROWS-1));
+}
+function h9EraseToEndOfLine(){
+  h9.buf.fill(0x20, h9.row*H9_COLS+h9.col, h9.row*H9_COLS+H9_COLS);
+}
+// ERASE PAGE loescht laut Handbuch S.4 die GESAMTE Seite (nicht nur ab Cursor) und
+// setzt den Cursor auf Home zurueck - u.a. der Weg, HOLD SCREEN wieder zu verlassen.
+function h9ErasePage(){
+  h9.buf.fill(0x20);
+  h9.row=0; h9.col=0; h9.hold=false;
+}
+function h9Bell(){
+  h9.flashUntil = performance.now()+120;
+  beep('short');
+}
+// RETURN bzw. empfangenes CR: Cursor an den Zeilenanfang der AKTUELLEN Zeile - laut
+// Handbuch S.5 ausdruecklich KEIN Zeilenvorschub, das macht ausschliesslich LINE FEED/LF.
+function h9CarriageReturn(){ h9.col=0; }
+// LINE FEED bzw. empfangenes LF: eine Zeile weiter. Ist die Seite voll UND SCROLL nicht
+// eingerastet, geht das Terminal laut Handbuch S.8 in HOLD SCREEN: Cursor springt auf
+// Bildanfang und blinkt dort (siehe Cursor-Blink in h9Render), externe Eingaben werden
+// ignoriert, bis SCROLL eingerastet oder ERASE PAGE gedrueckt wird.
+function h9LineFeed(){
+  if(h9.row < H9_ROWS-1){ h9.row++; return; }
+  if(h9.scroll){ h9ScrollUp(); return; }
+  h9.row=0; h9.col=0; h9.hold=true;
+}
+function h9PutChar(ch){
+  h9.buf[h9.row*H9_COLS+h9.col]=ch;
+  h9.col++;
+  if(h9.col>=H9_COLS){
+    if(h9.autoCarry){ h9.col=0; h9LineFeed(); }
+    else h9.col=H9_COLS-1; // ohne AUTO CARRY bleibt der Cursor stehen und ueberschreibt (Handbuch S.5)
+  }
+}
+// Nur diese vier der 32 ASCII-Steuerzeichen haben ueberhaupt eine Wirkung, gleichermassen
+// von der Tastatur wie von der Leitung (Handbuch S.8, "CONTROL CHARACTERS"). Alle anderen,
+// inkl. ESC, werden stillschweigend verworfen - nicht dargestellt, nicht gespeichert.
+function h9ApplyByte(byte){
+  if(byte===0x07){ h9Bell(); return; }
+  if(byte===0x08){ if(h9.col>0) h9.col--; return; } // Back Space bewegt nur den Cursor, loescht nichts
+  if(byte===0x0D){ h9CarriageReturn(); return; }
+  if(byte===0x0A){ h9LineFeed(); return; }
+  if(byte>=0x20 && byte<=0x7E){ h9PutChar(byte); return; }
+}
+
+// Weisser P4-Phosphor (Handbuch S.32: "12" diagonal, P4 phosphor"), nicht gruen wie
+// spaetere Heath-Terminals.
+const H9_FG='#eef1ea', H9_BG='#07080a', H9_CELL_W=9, H9_CELL_H=18, H9_SCALE=2;
+let h9Canvas=null, h9Ctx=null;
+function h9EnsureCanvas(){
+  if(h9Ctx) return;
+  h9Canvas = document.getElementById('h9-screen');
+  if(!h9Canvas) return;
+  h9Ctx = h9Canvas.getContext('2d');
+}
+function h9Render(){
+  h9EnsureCanvas();
+  if(!h9Ctx) return;
+  const ctx=h9Ctx;
+  const w=H9_COLS*H9_CELL_W*H9_SCALE, h=H9_ROWS*H9_CELL_H*H9_SCALE;
+  if(h9Canvas.width!==w || h9Canvas.height!==h){ h9Canvas.width=w; h9Canvas.height=h; }
+  const flashing = h9.flashUntil>performance.now();
+  ctx.shadowBlur=0;
+  ctx.fillStyle = flashing ? H9_FG : H9_BG;
+  ctx.fillRect(0,0,w,h);
+  if(!h9powered || !h9.buf) return;
+  ctx.font = Math.round(H9_CELL_H*H9_SCALE*0.72)+'px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  ctx.textBaseline='middle';
+  ctx.fillStyle = flashing ? H9_BG : H9_FG;
+  ctx.shadowColor = H9_FG;
+  ctx.shadowBlur = 3;
+  for(let r=0;r<H9_ROWS;r++){
+    for(let c=0;c<H9_COLS;c++){
+      const ch=h9.buf[r*H9_COLS+c];
+      if(ch===0x20) continue;
+      // Der Zeichengenerator kennt nur Grossbuchstaben (Handbuch S.32) - vom Rechner
+      // empfangene Kleinbuchstaben werden zwar gespeichert, aber wie Grossbuchstaben
+      // dargestellt (Handbuch S.6).
+      ctx.fillText(String.fromCharCode(ch).toUpperCase(), c*H9_CELL_W*H9_SCALE, r*H9_CELL_H*H9_SCALE+H9_CELL_H*H9_SCALE/2);
+    }
+  }
+  if(Math.floor(performance.now()/500)%2===0){
+    ctx.shadowBlur=0;
+    ctx.globalAlpha=0.5;
+    ctx.fillStyle=H9_FG;
+    ctx.fillRect(h9.col*H9_CELL_W*H9_SCALE, h9.row*H9_CELL_H*H9_SCALE, H9_CELL_W*H9_SCALE, H9_CELL_H*H9_SCALE);
+    ctx.globalAlpha=1;
+  }
+}
+function h9RunLoop(){
+  function frame(){
+    if(!h9powered){ h9.runHandle=null; return; }
+    // HOLD SCREEN: externe Eingaben (seriell/parallel) werden verworfen, bis SCROLL
+    // eingerastet oder ERASE PAGE gedrueckt wird (Handbuch S.8).
+    if(h9.hold) wire.toH9.length=0;
+    else while(wire.toH9.length) h9ApplyByte(wire.toH9.shift());
+    h9Render();
+    h9.runHandle=requestAnimationFrame(frame);
+  }
+  h9.runHandle = requestAnimationFrame(frame);
+}
+function h9PowerOn(){
+  h9ResetScreen(); h9.flashUntil=0;
+  h9RunLoop();
+}
+function h9PowerOff(){
+  if(h9.runHandle){ cancelAnimationFrame(h9.runHandle); h9.runHandle=null; }
+  h9Render();
+}
+function h9TogglePower(){
+  h9powered = !h9powered;
+  const el=document.getElementById('h9-power-toggle');
+  el.classList.toggle('on', h9powered);
+  el.setAttribute('aria-checked', h9powered?'true':'false');
+  if(h9powered){ h9PowerOn(); beep('medium'); maybeAutoLoadSerialEcho(); }
+  else { h9PowerOff(); }
+}
+function h9ToggleMode(flag, btnId){
+  h9[flag] = !h9[flag];
+  const el=document.getElementById(btnId);
+  el.classList.toggle('on', h9[flag]);
+  el.setAttribute('aria-checked', h9[flag]?'true':'false');
+  if(flag==='scroll' && h9.scroll) h9.hold=false; // SCROLL einrasten beendet HOLD SCREEN
+}
+
+// "Local Function Keys" (Handbuch S.4): Pfeiltasten, HOME und die Loeschfunktionen
+// wirken NUR lokal auf die Anzeige und senden nichts ueber die Leitung.
+const H9_LOCAL_KEYS = {
+  'ArrowUp':   ()=>{ if(h9.row>0) h9.row--; },
+  'ArrowDown': ()=>{ if(h9.row<H9_ROWS-1) h9.row++; },
+  'ArrowLeft': ()=>{ if(h9.col>0) h9.col--; },
+  'ArrowRight':()=>{ if(h9.col<H9_COLS-1) h9.col++; },
+  'Home':      ()=>{ h9.row=0; h9.col=0; },
+  'End':       ()=>{ h9EraseToEndOfLine(); },   // ERASE EOL
+  'PageDown':  ()=>{ h9ErasePage(); },          // ERASE PAGE
+};
+// Sendende Sondertasten. Eine eigene RUBOUT/DEL-Taste (0x7F) gehoert laut Handbuch
+// (S.6, Pictorial 1-3) zur normalen 52-Tasten-ASCII-Tastatur; eine eigene BACK-SPACE-
+// Taste gibt es dagegen NICHT - BS entsteht ausschliesslich ueber STRG+H (Handbuch S.8).
+// Die PC-Tasten Rueckschritt/Entf werden hier ergonomisch auf RUBOUT gelegt.
+const H9_TX_KEYS = {
+  'Enter':[0x0D], 'Escape':[0x1B], 'Backspace':[0x7F], 'Delete':[0x7F],
+};
+function h9KeyToBytes(e){
+  if(e.ctrlKey && e.key.length===1){
+    const c = e.key.toUpperCase().charCodeAt(0);
+    if(c>=0x40 && c<=0x5F) return [c & 0x1F]; // Strg+Buchstabe/Sonderzeichen, z.B. Strg+H = BS
+  }
+  if(H9_TX_KEYS[e.key]) return H9_TX_KEYS[e.key];
+  // Das H9 kann von der Tastatur laut Handbuch (S.4/S.6) KEINE Kleinbuchstaben erzeugen -
+  // die Tastaturelektronik verschiebt automatisch auf Grossbuchstaben.
+  if(e.key.length===1) return [e.key.toUpperCase().charCodeAt(0) & 0x7F];
+  return null;
+}
+function h9SendKeyBytes(bytes){
+  if(!h9powered) return;
+  for(const b of bytes){
+    wire.toH8.push(b & 0xFF);
+    // Halbduplex (Grundstellung, FULL-DUPLEX-Taste ausgerastet): sofortes Lokal-Echo,
+    // unabhaengig davon, ob und wie der Rechner antwortet (Handbuch S.7).
+    if(!h9.fullDuplex) h9ApplyByte(b & 0xFF);
+  }
+  beep('short');
 }
 
 let muted=false;
@@ -859,12 +1180,14 @@ function powerOn(){
   document.getElementById('power-toggle').classList.add('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','true');
   romPowerOn();
+  maybeAutoLoadSerialEcho();
 }
 function powerOff(){
   powered=false;
   document.getElementById('power-toggle').classList.remove('on');
   document.getElementById('power-toggle').setAttribute('aria-checked','false');
   romPowerOff();
+  serialEchoLoaded=false; // naechstes Einschalten hat wieder leeres RAM
 }
 function togglePower(){ powered ? powerOff() : powerOn(); }
 
@@ -944,6 +1267,53 @@ async function romLoadInitialTestRoutine(btn){
   }
 }
 
+// Selbst geschriebenes Demoprogramm (kein Original-Handbuchcode!) fuer die
+// H9-Anbindung: liest an Adresse 040300 oktal fortlaufend Port 351 (Status),
+// wartet auf Bit0 (Byte vom H9 wartet), liest es von Port 350 und schickt es
+// sofort per OUT 350 zurueck - ein einfaches Echo, das den kompletten
+// Rundlauf Tippen->H9->H8->H9->Anzeige sichtbar macht.
+// WICHTIG (empirisch ermittelt): die Adresseingabe am Frontpanel behandelt die
+// 6 Ziffern NICHT als eine fortlaufende oktale Zahl, sondern als zwei getrennte
+// 3-stellige oktale BYTES (hi dann lo, je 000-377 gueltig) - "040300" ergibt
+// also (040 oktal)*256+(300 oktal) = 0x20*256+0xC0 = 0x20C0, NICHT 0x40C0. Die
+// Sprungziele unten sind entsprechend auf 0x20C0 gesetzt.
+//   20C0: IN 351 ; ANI 1 ; JZ 20C0 ; IN 350 ; OUT 350 ; JMP 20C0
+const SERIAL_ECHO_DEMO = [0o333,0o351,0o346,0o001,0o312,0o300,0o040,0o333,0o350,0o323,0o350,0o303,0o300,0o040];
+async function romLoadSerialEcho(btn){
+  if(btn.disabled) return;
+  btn.disabled=true; const label=btn.textContent; btn.textContent='Tippt …';
+  try{
+    if(!powered){ powerOn(); await delay(800); }
+    await romPressAndRelease(ROM_KEY_BYTE.MEM, 60, 50);
+    await romTypeDigits([0,4,0,3,0,0], 60, 50);
+    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
+    for(const val of SERIAL_ECHO_DEMO){
+      const digs=val.toString(8).padStart(3,'0').split('').map(Number);
+      await romTypeDigits(digs, 60, 50);
+    }
+    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 80);
+    await romPressAndRelease(ROM_KEY_BYTE.REG, 60, 50);
+    await romPressAndRelease(ROM_KEY_BYTE[6], 60, 50);
+    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
+    await romTypeDigits([0,4,0,3,0,0], 60, 50);
+    await romPressAndRelease(ROM_KEY_BYTE.ALTER, 60, 50);
+    await romPressAndRelease(ROM_KEY_BYTE[4], 60, 50); // GO - Programm startet sofort
+  } finally {
+    btn.disabled=false; btn.textContent=label;
+  }
+}
+// Sobald H8 UND H9 beide eingeschaltet sind, das Echo-Demo automatisch
+// eintippen und starten - ohne diesen Schritt kennt PAM8 keine seriellen
+// Routinen und der H9-Bildschirm bleibt beim Tippen stumm. Wird von
+// powerOn(), h9TogglePower() und romDoReset() aus aufgerufen; der
+// serialEchoLoaded-Merker verhindert wiederholtes/doppeltes Auto-Laden.
+function maybeAutoLoadSerialEcho(){
+  if(!powered || !h9powered || serialEchoLoaded) return;
+  serialEchoLoaded = true;
+  const btn = document.getElementById('btn-serial-echo');
+  if(btn) romLoadSerialEcho(btn);
+}
+
 /* ================= EVENT WIRING ================= */
 function keyByteForButton(btn){
   if(btn.dataset.num!==undefined) return ROM_KEY_BYTE[parseInt(btn.dataset.num,10)];
@@ -980,6 +1350,31 @@ document.getElementById('btn-itr').addEventListener('click', (e)=> romLoadInitia
 document.getElementById('btn-mute').addEventListener('click', (e)=>{
   muted=!muted;
   e.target.textContent = muted ? '🔇 Ton aus' : '🔊 Ton an';
+});
+document.getElementById('btn-serial-echo').addEventListener('click', (e)=> romLoadSerialEcho(e.currentTarget));
+
+const h9PowerToggleEl = document.getElementById('h9-power-toggle');
+h9PowerToggleEl.addEventListener('click', h9TogglePower);
+h9PowerToggleEl.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); h9TogglePower(); } });
+
+function wireH9ModeToggle(btnId, flag){
+  const el=document.getElementById(btnId);
+  el.addEventListener('click', ()=> h9ToggleMode(flag, btnId));
+  el.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); h9ToggleMode(flag, btnId); } });
+}
+wireH9ModeToggle('h9-duplex-toggle', 'fullDuplex');
+wireH9ModeToggle('h9-autocarry-toggle', 'autoCarry');
+wireH9ModeToggle('h9-scroll-toggle', 'scroll');
+
+const h9Frame = document.getElementById('h9-screen-frame');
+h9Frame.addEventListener('click', ()=> h9Frame.focus());
+h9Frame.addEventListener('focus', ()=> h9Frame.classList.add('focused'));
+h9Frame.addEventListener('blur', ()=> h9Frame.classList.remove('focused'));
+h9Frame.addEventListener('keydown', (e)=>{
+  if(!h9powered) return;
+  if(H9_LOCAL_KEYS[e.key]){ H9_LOCAL_KEYS[e.key](); e.preventDefault(); return; }
+  const bytes = h9KeyToBytes(e);
+  if(bytes){ h9SendKeyBytes(bytes); e.preventDefault(); }
 });
 
 // Ziffer aus dem physischen Tastencode lesen (e.code, z.B. "Digit0"), nicht
@@ -1018,8 +1413,10 @@ window.addEventListener('keyup',(e)=>{
 });
 
 romRender();
-if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romDoReset, romDoRTM,
-  CPU }; }
+h9Render();
+if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romLoadSerialEcho, romDoReset, romDoRTM,
+  CPU, h9PowerOn, h9PowerOff, h9, wire, get h9powered(){return h9powered;}, maybeAutoLoadSerialEcho, h9TogglePower,
+  get serialEchoLoaded(){return serialEchoLoaded;} }; }
 })();
 </script>
 </body>
