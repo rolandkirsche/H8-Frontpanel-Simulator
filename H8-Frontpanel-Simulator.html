@@ -314,7 +314,7 @@
         <dt>GO</dt><dd>Taste 4, wenn REG/PC angezeigt wird: startet Ausführung ab PC.</dd>
         <dt>SI</dt><dd>Taste 7, wenn REG/PC angezeigt wird: führt genau einen Befehl aus (Single Instruction).</dd>
         <dt>IN / OUT</dt><dd>Taste 5/6 im MEM-Modus bei stehender Adresse: linke Gruppe = Portdaten, rechte Gruppe = Portadresse (000–377).</dd>
-        <dt>LOAD / DUMP</dt><dd>Original-Firmware wartet dabei auf ein Kassetteninterface, das es hier nicht gibt — mit CANCEL abbrechen (genau das Original-Verhalten bei Bandfehlern).</dd>
+        <dt>LOAD / DUMP</dt><dd>Speichert bzw. lädt Speicherbereiche auf die virtuelle Kassette (siehe Karte „Kassettenrekorder“ unten) – mit CANCEL jederzeit abbrechbar, genau wie am Original.</dd>
       </dl>
     </div>
     <div class="card">
@@ -368,9 +368,10 @@
     <div class="card">
       <h2>H9-Terminal anbinden</h2>
       <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle – deshalb tippt der Simulator automatisch ein kleines,
-      selbst geschriebenes Echo-Programm (14 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und
-      startet es per <code>GO</code>, sobald H8 <strong>und</strong> H9 eingeschaltet sind. Es wartet auf ein Byte
-      vom H9 und schickt es sofort zurück – kein manueller Klick nötig.</p>
+      selbst geschriebenes Echo-Programm (22 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und
+      startet es per <code>GO</code>, sobald H8 <strong>und</strong> H9 eingeschaltet sind. Es initialisiert den
+      Konsolen-USART der H8-5-Karte (Port 372/373 oktal) und wartet dann auf ein Byte vom H9, das es sofort
+      zurückschickt – kein manueller Klick nötig.</p>
       <p>Einfach H9 einschalten, auf den Bildschirm klicken und tippen – jedes Zeichen läuft echt über die serielle
       Leitung zum H8 und von dort zurück zum H9-Bildschirm. Der Button unten lädt das Echo-Programm bei Bedarf
       manuell neu (z. B. nach eigenen Experimenten im H8-Speicher).</p>
@@ -382,14 +383,36 @@
         <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
       </div>
     </div>
+    <div class="card">
+      <h2>Kassettenrekorder</h2>
+      <p>LOAD und DUMP sind hier keine Attrappe: Es laufen die echten PAM8-ROM-Routinen (Sync-Byte-Suche, STX,
+      Kopfdaten, CRC-16 – alles original), nur das Band selbst ist virtuell. DUMP schreibt ab der aktuellen
+      Bandkopf-Position, LOAD liest ebenso – genau wie am echten Kassettenrekorder.</p>
+      <p>Ablauf wie im Original-Handbuch: Startadresse nach <code>040000</code>/<code>040001</code> ALTERn,
+      Einsprungadresse ins PC-Register, Endadresse im MEM-Modus anzeigen, dann <code>DUMP</code> drücken. Zum
+      Zurückladen einfach <code>LOAD</code> drücken (keine vorherige Adresseingabe nötig).</p>
+      <div class="actions">
+        <button class="util" id="btn-cassette-rewind">⏮ Zurückspulen</button>
+        <button class="util" id="btn-cassette-eject">⏏ Band leeren (neu)</button>
+        <button class="util" id="btn-cassette-save">💾 Band als Datei speichern</button>
+        <button class="util" id="btn-cassette-load">📂 Band aus Datei laden</button>
+        <input type="file" id="cassette-file-input" accept=".h8tape,.bin" style="display:none;">
+      </div>
+      <div class="status-line" id="cassette-status">Band: leer</div>
+    </div>
   </div>
 
   <footer class="note">
     Läuft mit dem originalen PAM8-Monitor-ROM (Heath Teilenr. 444-13, J.G. Letwin, 1976) auf einem selbstgebauten
     8080A-Emulator. Port-Protokoll (360/361), Tastenmatrix und Zeichentabellen empirisch aus dem laufenden ROM sowie
     aus dem Original-Quelltext <code>XCON8 ROM.asm</code> (T. Gulczynski Re-Creation, 2009) verifiziert. Kassette
-    (Port 370/371) ist nicht angeschlossen — LOAD/DUMP warten wie am Original auf ein Bandgerät, mit CANCEL abbrechbar.
-    Die physische Tastenanordnung entspricht dem wiederverwendeten Taschenrechner-Tastenfeld des Originals (große
+    (Port 370/371, Heathkit H8-5 Serial I/O and Cassette Interface Card, Handbuch 595-2032-03) ist als virtuelles
+    Band angeschlossen: LOAD und DUMP laufen mit den echten PAM8-ROM-Routinen aus dem Original-Listing (Heath
+    595-2348, S. 1-18 bis 1-48) — Sync-Byte-Suche (32 Byte laut ROM, mind. 10 laut Handbuch), STX, Header und
+    CRC-16 werden vollständig vom Original-ROM erzeugt bzw. geprüft, nicht nachgebaut. Simuliert wird nur der
+    Bytetransport selbst (kein Timing, keine Tonköpfe/FSK) sowie deshalb auch keine echten Bandfehler — mit CANCEL
+    weiterhin jederzeit abbrechbar. Die physische Tastenanordnung entspricht dem wiederverwendeten
+    Taschenrechner-Tastenfeld des Originals (große
     Beschriftung 0–9/+/−/*/./#/, kleine aufgeklebte Funktionslabel) — abgeglichen mit dem Keyboard-Label-Pictorial im
     Original-Zusammenbauhandbuch (595-2013-01, S. 47) sowie dem <code>h8.lay</code>-Tastenfeld-Layout aus MAME
     (Heath/Zenith-H8-Treiber von J. Tranter). Flag-Feinheiten des 8080A (insbesondere DAA/Auxiliary-Carry bei
@@ -405,9 +428,13 @@
     keine Bildschirmwirkung beschreibt. Laut Handbuch (S. 10,
     „Heathkit Computer System Interface Standard“) lief die echte H8↔H9-Verbindung mit 600 Baud, EIA/RS-232C,
     8 Datenbits, keine Parität – hier läuft die simulierte serielle Leitung dagegen verzögerungsfrei. Die
-    H8-seitige Portbelegung (350/351 oktal) ist mangels erhaltener H8-Seriellkarten-Unterlagen ein selbst
-    entworfener, nicht-authentischer Demo-Port, keine Nachbildung einer realen Heath-Karte. Short Form, Plot-Modus,
-    die sieben wählbaren Baudraten, Off Line, Break und Xmit Page aus dem Original sind nicht nachgebildet.
+    H8-seitige Portbelegung ist jetzt authentisch: Die Heathkit H8-5 „Serial I/O and Cassette Interface Card“
+    (Handbuch 595-2032-03) legt per Standard-Jumperung „used by the Heath software“ (S. 29) den Konsolen-USART
+    (Intel 8251) auf Port 372/373 oktal – genau diese Ports simuliert das Echo-Demoprogramm, inklusive einer
+    minimalen Mode-/Command-Initialisierung und eines Statuswort-Bits (RxRDY) zum Pollen. Baudrate, Enable-Bits
+    und Fehlererkennung des echten 8251 werden dabei nicht simuliert – Bytes laufen verzögerungsfrei durch. Der
+    Kassetten-USART (Port 370/371 laut selber Jumperung) bleibt wie zuvor unangeschlossen. Short Form, Plot-Modus,
+    die sieben wählbaren Baudraten, Off Line, Break und Xmit Page aus dem H9-Original sind nicht nachgebildet.
   </footer>
 </div>
 
@@ -743,6 +770,21 @@ let h9powered = false;
 let serialEchoLoaded = false;
 // Virtuelles Nullmodemkabel: zwei Byte-Warteschlangen zwischen H8 und H9.
 const wire = { toH8: [], toH9: [] };
+// Virtuelle Kassette: ein Byte-Array mit "Bandkopf"-Position. DUMP schreibt
+// ab der aktuellen Position (wie beim Ueberspielen ab Bandkopf-Stellung),
+// LOAD liest ab der aktuellen Position - exakt wie bei einem echten
+// Kassettenrekorder. REWIND setzt die Position auf 0 zurueck, ohne die
+// Aufnahme zu loeschen.
+const cassette = { data: [], pos: 0 };
+function cassetteChanged(){
+  const el = document.getElementById('cassette-status');
+  if(!el) return;
+  if(cassette.data.length===0){ el.textContent = 'Band: leer'; return; }
+  el.textContent = 'Band: ' + cassette.data.length + ' Byte, Position ' + cassette.pos
+    + (cassette.pos < cassette.data.length ? ' (' + (cassette.data.length-cassette.pos) + ' Byte ungelesen)' : ' (Bandende)');
+}
+function cassetteRewind(){ cassette.pos = 0; cassetteChanged(); beep('short'); }
+function cassetteEject(){ cassette.data = []; cassette.pos = 0; cassetteChanged(); beep('medium'); }
 const rom = {
   cpu:null, mem:null,
   digitSel:0, display:new Uint8Array(10).fill(0x7f), speakerOn:false,
@@ -751,19 +793,31 @@ const rom = {
   ionSeen:false, userSeen:false,
 };
 
-// Serielle H8-Seite fuer die H9-Anbindung: Port 350/351 oktal (0xE8/0xE9 hex).
-// WICHTIG - bewusst NICHT authentisch: es gibt kein Handbuch zur originalen
-// H8-Seriell-Interfacekarte in den verfuegbaren Unterlagen, PAM8 selbst kennt
-// gar keine Seriell-Routinen. Dies ist ein selbst entworfenes, denkbar
-// einfaches 2-Port-Protokoll (Daten/Status) nur fuer das Echo-Demoprogramm
-// weiter unten - keine Nachbildung einer realen Heath-Karte.
-// 350 oktal (Daten): OUT sendet ein Byte zum H9, IN liest ein empfangenes.
-// 351 oktal (Status): Bit0 = ein Byte vom H9 wartet zum Lesen.
+// Serielle H8-Seite fuer die H9-Anbindung UND die virtuelle Kassette: die
+// echten Ports der Heathkit H8-5 "Serial I/O and Cassette Interface Card"
+// (Handbuch 595-2032-03, S.29 "Port Select"): Die Standard-Jumperung der
+// Karte - "used by the Heath software" - legt den Kassetten-USART auf Port
+// 370/371 oktal und den KONSOLEN-USART auf Port 372/373 oktal.
+// Beide USART-Ports der Karte sind Intel-8251-Register: das GERADE Portbyte
+// ist der Datenport, das UNGERADE nimmt Mode-/Command-Bytes an und liefert
+// das Statuswort (S.45/48 des Handbuchs). Diese Simulation bildet nur die
+// fuer Polling noetigen Statusbits nach (Bit0 TxRDY, Bit1 RxRDY, Bit2 TxE,
+// wie beim echten 8251) - Mode-/Command-Bytes werden zwar angenommen (ein
+// reales Programm muss sie weiterhin senden), aber nicht ausgewertet: diese
+// Simulation kennt weder Baudrate noch Enable-Bits.
+// Die Kassette selbst (Port 370/371) ist KEIN selbst erfundenes Format: LOAD
+// und DUMP sind die echten PAM8-ROM-Routinen (Heath 595-2348 Listing, S.1-18
+// bis 1-48) - Sync-Byte-Suche, STX, Header und CRC-16 werden vollstaendig
+// vom Original-ROM erzeugt bzw. geprueft. Die Simulation liefert dafuer nur
+// den Byte-Transport (virtuelles Band = ein Byte-Array mit Bandkopf-Position,
+// s. "cassette" weiter unten) - Sync/CRC/Fehlerbehandlung laufen echt im ROM.
 function romIoIn(port){
   if(port===0xF0) return rom.keyByte;
-  if(port===0xE8) return wire.toH8.length ? wire.toH8.shift() : 0x00;
-  if(port===0xE9) return wire.toH8.length ? 0x01 : 0x00;
-  return 0xFF; // Kassette (370/371) nicht simuliert: "nichts angeschlossen"
+  if(port===0xF8){ const v = cassette.pos < cassette.data.length ? cassette.data[cassette.pos++] : 0x00; cassetteChanged(); return v; } // Kassette: Datenport
+  if(port===0xF9) return (cassette.pos < cassette.data.length ? 0x02 : 0x00) | 0x05; // Kassette: Statuswort
+  if(port===0xFA) return wire.toH8.length ? wire.toH8.shift() : 0x00; // Konsolen-USART: Datenport
+  if(port===0xFB) return (wire.toH8.length ? 0x02 : 0x00) | 0x05; // Statuswort: RxRDY | TxRDY+TxE
+  return 0xFF;
 }
 function romIoOut(port,val){
   if(port===0xF0){
@@ -776,9 +830,9 @@ function romIoOut(port,val){
     rom.speakerOn = speakerNow;
   }
   else if(port===0xF1){ if(rom.digitSel>=1 && rom.digitSel<=9) rom.display[rom.digitSel]=val; }
-  else if(port===0xE8){ wire.toH9.push(val & 0xFF); }
-  // Port 370/371 (Kassette) wird ignoriert; LOAD/DUMP lassen sich im ROM-Modus
-  // per CANCEL (entspricht Original-Verhalten bei Bandfehler) abbrechen.
+  else if(port===0xF8){ cassette.data[cassette.pos++] = val & 0xFF; cassetteChanged(); } // Kassette: Datenport (DUMP)
+  else if(port===0xFA){ wire.toH9.push(val & 0xFF); } // Konsolen-USART: Datenport
+  // Port 371/373 (Mode/Command) wird angenommen, aber nicht ausgewertet (siehe oben).
 }
 
 function romPowerOn(){
@@ -927,8 +981,9 @@ function romDoRTM(){
  * (Handbuch S.4). FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter mit
  * "ausgerastet" als Grundstellung (Handbuch S.5, S.7f). KEIN Anspruch auf Bit-genaue
  * Schaltungssimulation; SHORT FORM, PLOT, BAUD RATE, OFF LINE, BREAK und XMIT PAGE aus
- * dem Original sind hier nicht nachgebildet. Die serielle H8-Seite ist wie beim
- * Anschluss selbst ein selbst entworfener Demo-Port (siehe romIoIn/romIoOut oben).
+ * dem Original sind hier nicht nachgebildet. Die serielle H8-Seite nutzt die echten
+ * Ports der H8-5-Karte (372/373 oktal, Konsolen-USART - siehe romIoIn/romIoOut oben),
+ * aber mit stark vereinfachtem 8251-Verhalten (kein Timing/Baudrate/Fehlererkennung).
  */
 const H9_COLS=80, H9_ROWS=12;
 const h9 = {
@@ -1277,17 +1332,24 @@ async function romLoadInitialTestRoutine(btn){
 }
 
 // Selbst geschriebenes Demoprogramm (kein Original-Handbuchcode!) fuer die
-// H9-Anbindung: liest an Adresse 040300 oktal fortlaufend Port 351 (Status),
-// wartet auf Bit0 (Byte vom H9 wartet), liest es von Port 350 und schickt es
-// sofort per OUT 350 zurueck - ein einfaches Echo, das den kompletten
-// Rundlauf Tippen->H9->H8->H9->Anzeige sichtbar macht.
+// H9-Anbindung, diesmal aber auf den ECHTEN Ports der H8-5-Karte (Handbuch
+// 595-2032-03, S.29/45/48): erst die Standard-USART-Initialisierung (Mode-
+// Instruction 0116 oktal = 8 Bit/1 Stopbit/x16-Takt, danach eine Command-
+// Instruction 067 oktal = TxEN+DTR+RxE+ER+RTS), dann eine Polling-Schleife,
+// die das Statuswort an Port 373 auf RxRDY (Bit1) prueft, das Zeichen von
+// Port 372 liest und sofort per OUT 372 zurueckschickt.
 // WICHTIG (empirisch ermittelt): die Adresseingabe am Frontpanel behandelt die
 // 6 Ziffern NICHT als eine fortlaufende oktale Zahl, sondern als zwei getrennte
 // 3-stellige oktale BYTES (hi dann lo, je 000-377 gueltig) - "040300" ergibt
 // also (040 oktal)*256+(300 oktal) = 0x20*256+0xC0 = 0x20C0, NICHT 0x40C0. Die
-// Sprungziele unten sind entsprechend auf 0x20C0 gesetzt.
-//   20C0: IN 351 ; ANI 1 ; JZ 20C0 ; IN 350 ; OUT 350 ; JMP 20C0
-const SERIAL_ECHO_DEMO = [0o333,0o351,0o346,0o001,0o312,0o300,0o040,0o333,0o350,0o323,0o350,0o303,0o300,0o040];
+// Sprungziele unten sind entsprechend auf 0x20C0 (Schleifenanfang) gesetzt.
+//   20C0: MVI A,0116 ; OUT 373 ; MVI A,067 ; OUT 373
+//   20C8: IN 373 ; ANI 2 ; JZ 20C8 ; IN 372 ; OUT 372 ; JMP 20C8
+const SERIAL_ECHO_DEMO = [
+  0o076,0o116,0o323,0o373,0o076,0o067,0o323,0o373,
+  0o333,0o373,0o346,0o002,0o312,0o310,0o040,
+  0o333,0o372,0o323,0o372,0o303,0o310,0o040
+];
 async function romLoadSerialEcho(btn){
   if(btn.disabled) return;
   btn.disabled=true; const label=btn.textContent; btn.textContent='Tippt …';
@@ -1361,6 +1423,33 @@ document.getElementById('btn-mute').addEventListener('click', (e)=>{
   e.target.textContent = muted ? '🔇 Ton aus' : '🔊 Ton an';
 });
 document.getElementById('btn-serial-echo').addEventListener('click', (e)=> romLoadSerialEcho(e.currentTarget));
+
+document.getElementById('btn-cassette-rewind').addEventListener('click', cassetteRewind);
+document.getElementById('btn-cassette-eject').addEventListener('click', cassetteEject);
+document.getElementById('btn-cassette-save').addEventListener('click', ()=>{
+  const blob = new Blob([new Uint8Array(cassette.data)], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'h8-kassette.h8tape';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+const cassetteFileInput = document.getElementById('cassette-file-input');
+document.getElementById('btn-cassette-load').addEventListener('click', ()=> cassetteFileInput.click());
+cassetteFileInput.addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    cassette.data = Array.from(new Uint8Array(reader.result));
+    cassette.pos = 0;
+    cassetteChanged();
+    beep('medium');
+  };
+  reader.readAsArrayBuffer(file);
+  cassetteFileInput.value = '';
+});
+cassetteChanged();
 
 const h9PowerToggleEl = document.getElementById('h9-power-toggle');
 h9PowerToggleEl.addEventListener('click', h9TogglePower);
