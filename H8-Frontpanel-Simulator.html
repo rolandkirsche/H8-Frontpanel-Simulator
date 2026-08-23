@@ -293,11 +293,13 @@
     <p class="h9-note">Funktionale Nachbildung des H9-Video-Terminals nach der Original-Bedienungsanleitung
     (Heath Teilenr. 595-2017-03): 12 Zeilen zu 80 Zeichen, weißer P4-Phosphor. Das Original arbeitet mit reiner
     TTL-/MSI-Logik statt CPU und ROM – es gibt also keine Firmware zum Nachbauen, und anders als beim späteren H19
-    kann der Rechner dem H9 keine Cursor-Steuercodes schicken: von den 32 ASCII-Steuerzeichen wirken nur
-    <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code> überhaupt
-    etwas, laut Handbuch gleichermaßen von Tastatur wie Leitung. FULL DUPLEX, AUTO CARRY und SCROLL sind echte
-    Kippschalter mit „ausgerastet“ als Grundstellung; SHORT FORM, PLOT-Modus, Baudraten-Wahl, OFF LINE, BREAK und
-    XMIT PAGE aus dem Original sind hier nicht nachgebildet.</p>
+    kann der Rechner dem H9 keine Cursor-Steuercodes schicken: von den 32 ASCII-Steuerzeichen wirken laut Handbuch
+    nur <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code>
+    überhaupt etwas, gleichermaßen von Tastatur wie Leitung. RUBOUT (0x7F, die Löschtaste) ist im Handbuch für den
+    Normalbetrieb ohne beschriebene Bildschirmwirkung – hier zusätzlich als destruktives Löschen ergänzt, keine
+    belegte Handbuch-Angabe. FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter mit „ausgerastet“ als
+    Grundstellung; SHORT FORM, PLOT-Modus, Baudraten-Wahl, OFF LINE, BREAK und XMIT PAGE aus dem Original sind
+    hier nicht nachgebildet.</p>
   </div>
 
   <div class="panel-below">
@@ -398,7 +400,9 @@
     TTL-/MSI-Logikgerät ohne CPU oder ROM – es existiert also keine Firmware, die sich nachbauen ließe.
     Zeichendarstellung, die vier wirksamen Steuerzeichen (Back Space, Bell, Line Feed, Carriage Return), die
     lokalen Cursor-/Löschtasten sowie Full-Duplex/Auto-Carry/Scroll/Hold-Screen-Verhalten sind direkt aus dem
-    Handbuch (Abschnitte „Operation“, S. 4–8, und „Specifications“, S. 32) übernommen. Laut Handbuch (S. 10,
+    Handbuch (Abschnitte „Operation“, S. 4–8, und „Specifications“, S. 32) übernommen. RUBOUT (0x7F) als
+    destruktives Löschen ist dagegen eine eigene Ergänzung ohne Beleg im Handbuch, das dafür im Normalbetrieb
+    keine Bildschirmwirkung beschreibt. Laut Handbuch (S. 10,
     „Heathkit Computer System Interface Standard“) lief die echte H8↔H9-Verbindung mit 600 Baud, EIA/RS-232C,
     8 Datenbits, keine Parität – hier läuft die simulierte serielle Leitung dagegen verzögerungsfrei. Die
     H8-seitige Portbelegung (350/351 oktal) ist mangels erhaltener H8-Seriellkarten-Unterlagen ein selbst
@@ -984,6 +988,11 @@ function h9ApplyByte(byte){
   if(byte===0x08){ if(h9.col>0) h9.col--; return; } // Back Space bewegt nur den Cursor, loescht nichts
   if(byte===0x0D){ h9CarriageReturn(); return; }
   if(byte===0x0A){ h9LineFeed(); return; }
+  // RUBOUT/DEL (0x7F, alle Bits gesetzt): das Handbuch beschreibt fuer den Normalbetrieb
+  // keine Bildschirmwirkung (nur im Plot-Modus taucht sein Bitmuster als Strich auf,
+  // Handbuch S.6) - hier als destruktives Loeschen nachgebildet (Cursor zurueck + Zeichen
+  // entfernen), da eine Taste, die sichtbar gar nichts tut, in der Praxis wie ein Fehler wirkt.
+  if(byte===0x7F){ if(h9.col>0){ h9.col--; h9.buf[h9.row*H9_COLS+h9.col]=0x20; } return; }
   if(byte>=0x20 && byte<=0x7E){ h9PutChar(byte); return; }
 }
 
