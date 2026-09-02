@@ -396,7 +396,7 @@
         <button class="util" id="btn-cassette-eject">⏏ Band leeren (neu)</button>
         <button class="util" id="btn-cassette-save">💾 Band als Datei speichern</button>
         <button class="util" id="btn-cassette-load">📂 Band aus Datei laden</button>
-        <input type="file" id="cassette-file-input" accept=".h8tape,.bin" style="display:none;">
+        <input type="file" id="cassette-file-input" accept=".h8tape,.h8t,.bin" style="display:none;">
       </div>
       <div class="status-line" id="cassette-status">Band: leer</div>
     </div>
@@ -791,6 +791,10 @@ const rom = {
   keyByte: ROM_NO_KEY, keyHoldTimer:null,
   runHandle:null, stepCounter:0,
   ionSeen:false, userSeen:false,
+  // Konsolen-USART-Register (Intel 8251) + Merker fuer den ausstehenden
+  // RST-3-Empfangsinterrupt - siehe Kommentar bei romIoIn/romIoOut unten.
+  usart:{mode:0,cmd:0,expectMode:true,rbr:0,rxReady:false,overrunErr:false,txEnabled:false,rxEnabled:false,dtr:false},
+  pendingRxInterrupt:false,
 };
 
 // Serielle H8-Seite fuer die H9-Anbindung UND die virtuelle Kassette: die
@@ -800,23 +804,75 @@ const rom = {
 // 370/371 oktal und den KONSOLEN-USART auf Port 372/373 oktal.
 // Beide USART-Ports der Karte sind Intel-8251-Register: das GERADE Portbyte
 // ist der Datenport, das UNGERADE nimmt Mode-/Command-Bytes an und liefert
-// das Statuswort (S.45/48 des Handbuchs). Diese Simulation bildet nur die
-// fuer Polling noetigen Statusbits nach (Bit0 TxRDY, Bit1 RxRDY, Bit2 TxE,
-// wie beim echten 8251) - Mode-/Command-Bytes werden zwar angenommen (ein
-// reales Programm muss sie weiterhin senden), aber nicht ausgewertet: diese
-// Simulation kennt weder Baudrate noch Enable-Bits.
+// das Statuswort (S.45/48 des Handbuchs). Fuer die Kassette (370/371) reicht
+// die reine Statusbit-Nachbildung, weil PAM8s LOAD/DUMP dort per Polling
+// arbeitet - siehe Absatz unten. Die KONSOLE (372/373) bildet dagegen das
+// 8251 vollstaendig nach (Mode-/Command-Byte-Auswertung, RxRDY/TxRDY/TxE
+// aus echten Enable-Bits, siehe usartOut/usartStatus): PAM8s Konsolen-
+// Eingaberoutine wartet naemlich NICHT per Port-Polling auf ein Zeichen,
+// sondern auf ein RAM-Flag, das erst eine eigene Interrupt-Routine auf
+// RST 3 (Vektor 030 oktal = 0x18) setzt - getrennt vom periodischen
+// Tastenfeld-Interrupt (RST 1, 0x08). Ohne diesen zweiten Interrupt (frueherer
+// Stand dieser Datei) haengt jedes Programm, das echte Zeichen ueber die
+// Konsole empfaengt (z.B. Benton Harbor BASIC), in dieser Warteschleife fest,
+// auch wenn Zeichen im Byte-Puffer bereitstehen. Verifiziert per Cross-Check
+// gegen eine zweite, unabhaengige Nachbildung (github.com/rolandkirsche/
+// h8-h9-emulator), die echte BASIC-Kassetten nachweislich zum Laufen bringt.
 // Die Kassette selbst (Port 370/371) ist KEIN selbst erfundenes Format: LOAD
 // und DUMP sind die echten PAM8-ROM-Routinen (Heath 595-2348 Listing, S.1-18
 // bis 1-48) - Sync-Byte-Suche, STX, Header und CRC-16 werden vollstaendig
 // vom Original-ROM erzeugt bzw. geprueft. Die Simulation liefert dafuer nur
 // den Byte-Transport (virtuelles Band = ein Byte-Array mit Bandkopf-Position,
 // s. "cassette" weiter unten) - Sync/CRC/Fehlerbehandlung laufen echt im ROM.
+function usartReset(u){
+  u.mode=0; u.cmd=0; u.expectMode=true;
+  u.rxReady=false; u.rbr=0; u.overrunErr=false;
+  u.txEnabled=false; u.rxEnabled=false; u.dtr=false;
+}
+function usartStatus(u){
+  let s=0x80; // Bit7 (DSR) liegt am H8-5 fest auf bereit.
+  if(u.txEnabled){ s|=0x01; s|=0x04; } // TxRDY/TxE erst nach Enable im Command-Byte.
+  if(u.rxReady) s|=0x02; // RxRDY
+  if(u.overrunErr) s|=0x10;
+  return s;
+}
+function usartIn(port){
+  const u = rom.usart;
+  if(port===0xFA){ u.rxReady=false; return u.rbr; }
+  return usartStatus(u);
+}
+function usartOut(port,val){
+  const u = rom.usart;
+  if(port===0xFA){ if(u.txEnabled) wire.toH9.push(val & 0xFF); return; } // Konsolen-USART: Datenport
+  // Port 373 oktal: erstes Byte nach Reset ist das Mode-Byte, danach folgen
+  // Command-Bytes (Bit0 TxEN, Bit1 DTR, Bit2 RxE, Bit4 ER, Bit6 Internal
+  // Reset - echte 8251-Belegung). Bit6 setzt die Mode-Erwartung zurueck,
+  // wie im Original nach einem Command-Reset.
+  if(u.expectMode){ u.mode = val; u.expectMode = false; return; }
+  u.cmd = val;
+  u.txEnabled = !!(val & 0x01);
+  u.dtr = !!(val & 0x02);
+  u.rxEnabled = !!(val & 0x04);
+  if(val & 0x10) u.overrunErr = false;
+  if(val & 0x40){ u.expectMode = true; u.txEnabled = false; u.rxEnabled = false; u.dtr = false; }
+}
+// Von der H9-Tastatur (wire.toH8, s. h9SendKeyBytes) oder programmgesteuert
+// (z.B. der abschliessende CR nach dem BASIC-Laden) eintreffende Bytes landen
+// hier im Empfangsregister; bei gesetztem DTR loest das den RST-3-Interrupt
+// aus (siehe romRunLoop) - exakt wie ein echtes 8251 mit angeschlossenem DTR.
+function usartReceive(byte){
+  const u = rom.usart;
+  if(!u.rxEnabled) return;
+  if(u.rxReady) u.overrunErr = true;
+  u.rbr = byte & 0xFF;
+  u.rxReady = true;
+  if(u.dtr) rom.pendingRxInterrupt = true;
+}
 function romIoIn(port){
   if(port===0xF0) return rom.keyByte;
   if(port===0xF8){ const v = cassette.pos < cassette.data.length ? cassette.data[cassette.pos++] : 0x00; cassetteChanged(); return v; } // Kassette: Datenport
   if(port===0xF9) return (cassette.pos < cassette.data.length ? 0x02 : 0x00) | 0x05; // Kassette: Statuswort
-  if(port===0xFA) return wire.toH8.length ? wire.toH8.shift() : 0x00; // Konsolen-USART: Datenport
-  if(port===0xFB) return (wire.toH8.length ? 0x02 : 0x00) | 0x05; // Statuswort: RxRDY | TxRDY+TxE
+  if(port===0xFA || port===0xFB) return usartIn(port); // Konsolen-USART
   return 0xFF;
 }
 function romIoOut(port,val){
@@ -831,8 +887,7 @@ function romIoOut(port,val){
   }
   else if(port===0xF1){ if(rom.digitSel>=1 && rom.digitSel<=9) rom.display[rom.digitSel]=val; }
   else if(port===0xF8){ cassette.data[cassette.pos++] = val & 0xFF; cassetteChanged(); } // Kassette: Datenport (DUMP)
-  else if(port===0xFA){ wire.toH9.push(val & 0xFF); } // Konsolen-USART: Datenport
-  // Port 371/373 (Mode/Command) wird angenommen, aber nicht ausgewertet (siehe oben).
+  else if(port===0xFA || port===0xFB) usartOut(port,val); // Konsolen-USART
 }
 
 function romPowerOn(){
@@ -841,6 +896,7 @@ function romPowerOn(){
   rom.mem = mem;
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
   rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
+  usartReset(rom.usart); rom.pendingRxInterrupt=false; wire.toH8.length=0;
   const c = new CPU(mem, new Uint8Array(256));
   c.onIn = romIoIn; c.onOut = romIoOut;
   // Nur fuer diese Instanz: das reale H8 blendet ROM (0-1777 oktal) bei Schreibzugriffen
@@ -889,8 +945,13 @@ function romRunLoop(){
     // laufenden Programms wegen der ISR-Dips oft beide Lampen an).
     let iffSeen = false, userSeen = false;
     for(let i=0;i<6000;i++){
+      // Von der H9-Tastatur eingetroffene Bytes (wire.toH8) ins USART-
+      // Empfangsregister uebernehmen, sobald das vorherige gelesen wurde -
+      // stoesst bei gesetztem DTR den RST-3-Interrupt weiter unten an.
+      if(wire.toH8.length && !rom.usart.rxReady) usartReceive(wire.toH8.shift());
       if(c.halted){
-        if(c.iff){ c.interrupt(0x08); } else break;
+        if(c.iff && rom.pendingRxInterrupt){ rom.pendingRxInterrupt=false; c.interrupt(0x18); }
+        else if(c.iff){ c.interrupt(0x08); } else break;
       }
       c.step();
       if(c.iff) iffSeen = true;
@@ -906,6 +967,9 @@ function romRunLoop(){
       // Grenze: nach HLT eines selbst-terminierenden Programms kann der Monitor haengen
       // bleiben - Abhilfe ist ein manueller RESET (Hardware-Funktion, unabhaengig vom ROM).
       if(c.iff && (rom.stepCounter % 400)===0){ c.interrupt(0x08); }
+      // RST 3 (Konsolen-Empfangsinterrupt, s. usartReceive oben) hat Vorrang
+      // vor dem naechsten periodischen Tick, sobald ein Zeichen bereitsteht.
+      else if(c.iff && rom.pendingRxInterrupt){ rom.pendingRxInterrupt=false; c.interrupt(0x18); }
     }
     rom.ionSeen = iffSeen;
     rom.userSeen = userSeen;
@@ -958,6 +1022,7 @@ function romDoReset(){
   rom.mem.fill(0, 1024);
   rom.digitSel=0; rom.display.fill(0x7f); rom.speakerOn=false; rom.keyByte=ROM_NO_KEY;
   rom.stepCounter=0; rom.ionSeen=false; rom.userSeen=false;
+  usartReset(rom.usart); rom.pendingRxInterrupt=false; wire.toH8.length=0;
   serialEchoLoaded=false; // RAM (und damit das Echo-Demo) ist geloescht
   beep('long');
   maybeAutoLoadSerialEcho();
