@@ -399,6 +399,12 @@
         <input type="file" id="cassette-file-input" accept=".h8tape,.h8t,.bin" style="display:none;">
       </div>
       <div class="status-line" id="cassette-status">Band: leer</div>
+      <p>Direktstart: legt ein echtes Original-Kassettenabbild von <strong>Extended Benton Harbor
+      BASIC</strong> (#10.06.00, Wintek Corp./Heath Co., 1977–79) auf das virtuelle Band und
+      führt LOAD + GO automatisch aus – wie am echten Gerät, nur ohne Tastendrücke.</p>
+      <div class="actions">
+        <button class="util" id="btn-extended-basic">▶ Extended Benton Harbor BASIC starten</button>
+      </div>
     </div>
   </div>
 
@@ -727,6 +733,28 @@ function decodeROM(b64){
   return arr;
 }
 const PAM8_ROM = decodeROM(PAM8_ROM_B64);
+
+// Original-Kassettenabbild "EXTENDED BENTON HARBOR BASIC" #10.06.00 (Wintek Corp.
+// 01/77, Heath Co. 06/78+05/79) - keine Nachbildung, sondern das reale, per DUMP vom
+// Originalgeraet erzeugte Bandformat (SYN-Leader, STX, Kopfdaten inkl. gesicherter
+// Einsprungadresse, Programmdaten, CRC-16), byteidentisch wie ein echtes H8-5-
+// Kassettenband. Wird ueber die virtuelle Kassette (siehe "cassette" weiter unten)
+// derselben echten PAM8-LOAD-Routine zugefuehrt, die auch selbst gedumpte Baender
+// dieser App liest - kein eigener Lade- oder Interpreter-Code noetig.
+const EXTENDED_BASIC_TAPE_B64 = "FhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYCgQEvbyBAIEDDQE3DyCTDyyDD8CDD+yLDLyLDfyLDUCMAenp6enp6enp6enp6enp6enp6enp6enp6enp6enp6AP8AAXeIAm+QA1+gBD/AD38CEH0AEX4AE34Bf+8gAABQAAB6enp6enp6enp6enp6enp6enp6enp6enp6enp6enp6enp6enp6enp6miCaIP7+/v7+5fshWCB+p8rQIPPVNVYjfs3nI/UV+usgI34rdyPD3yD78dHhyfvN5yP1OscgH9obITqVIB/a/CAf0gkh8cnNNiQBAfsf0gkh8c13JAEA+8nx9eX1KsIgOsQgPf6Zwi0hPsG9yh8h8XcjPsK9wj0hIZogIsIgzRwk++HxyeX1zVAh8eH7yTrHIB/SYyHNNiQBAuYH/gLK3yE6xiDNbiPSmSE6yCDNbiPSjCE6xyDNbiP1Oscg/uHCiiHxPhHDiyHx2OZ//gXamSH+D9j+FND1IVggPh2+0q0hrzKVID4HzUkgNTR+hW/x5n93/iDQLnUjI77YI8K6ITqVIKYjrjKVIPUf1BwkLlg18fAqkyDpKsIgIsQgzTYkAQXmIMgqxCA6wiC9yiIiOscg/uHCAyLNNiQBBuYQwvkhOpUgH9oiIh/a2SF+zXckAQAjPsK9wh4iIZogIsQgyc02JAEB5v3NdyQBAckRxiDzzZAk9RpXOsgguspMIvH1uspMIjrGIM1NJPH1MsYgH9JjIvHEkiPNNiQAAfYBw3Mi8cTwI802JAAB5gTKZyI+F813JAABzTYkAAD7yRHHIPPNkCT1Gh/SriL75SrCIDrEIL3CjiLh+802JAEB5gLCmSLNNiQBBeZAyqQiGs2QJMrOIh/ayCLNNiQBAeYEyrkiPgHDySKvzXckAQHxEsrqIh8a0uAizZIjPgHD5SLN8CM+F813JAEB+8khVUkrfLXC7yI6TEoqSkrl9SHGIBYEfjb+Msog/v7KISMf2hsjzTYkBAHmBMoRI6/NdyQEASMVwgIjIUchIiYgPsMyJSCvMlggZ28ilSAh7yAikyAqwiAixCDx4c1VIK8ylSDJ5fXNfyLx4fXNLyLxIcggvspqI/V+zU0k8Xcjd/vJMsogH9KBI802JAQC5gf+BMOJI802JAQBL+YCN8DNNiQEAKfJ8zLKIK/NdyQEAT4QzXckBAQ+gM13JAQDfc13JAQAfOZ/zXckBAF8BwcH5gT2A813JAQDzTYkBADFAVVJC3ixws4jwc02JAQAzTYkBATm7813JAQEyf570P5h2NYgyTLKIHzmgPZOMhokIRMkfjzKDSQ9zXckBAEjw/4jzTYkBADJAAAAAAAAQAD/OscgH9DlzTYkAQFnL+YCyjQkrM13JAEB4cnj5X4hxiCFb37m/uEjhiPj8zJLJNsAyTLKIP7+88gf2mokzTYkBAHmBMpYJD4RzXckBAHJzTYkBAHm/s13JAQByeP15X4hxiCFb37m/uEjhiPzMo4k8ePTAMnr1eVe8zQhxiAWBL7KpSQjFcKbJBThc/vR68kAenp6enp6enp6enp6AAAAAAAAAAAAADEAAM0iS83sIirDJPkhyyTlrzJePTKVIDJNSs3CPjrIIM1VIDqWIKfE0EY+Ks20NdgB0UkKp/oLJf4w2hol/jrSGiXNdSbDpjn+79oVJf722hol/p/S6DivMk1KIcskIqc8zU89p8JwJe/N+yUhlSB+FxcX2sQ4F9wHJjpNSmen+D4AER4mg18aMgggCgOnwh4lfKfICgNvCgNnIstJpTw+osqXJc37Jf4ByMMeJc17JfcAzaI7wywl/u/ahSX+9tqPJf6l0nkp/onSliU6TUqnwug479aA/iXaoCXWSs0HSSEm1yZPJ/wn6SnRJlImNixmLFwm6SZ6Jx45KihyKMQoxyjaKHkpiyk/KpkqxCrcKhIrFytrK/QrACmPJhYsDikJPzonBigTKVws7invKb8o5CslKBIo9Ck6TUrmf8hgaSLNSckRAAB6s8rMOH7m73fh6811P83TKMNzJcCCgM00Pc3RKtXl683MOs3DP6/NtDXaSCYh0UnR1c2yOeHRGdriOMMnJuHRAb1KrzKVIMnNND3Ne0HAzfc+zTQ976fCliYhAAAixkkiskkiU0ougCJVSiEAACK3SSK8SSLBSSIIJi7AIqk7Ib1KIs1JIb1KIlFKyf7A2h45/sbSHjlnPiS60HwhBgDmAsq+Jhqn+r4m1eUTE+teI1bhGdEbG+UqsEl7lW96nGfRzY9BsEnJzTQ9zWQmPgQqzUlETc0bJQG9Sq8yTUrJzdEqff4F0uI4zfxIBQ4bJDXNuzvaFTkiCCbJezz+CNLiODL2RTL+Rcl7/gPS4jgyRCXJe6fK4jgyrys6lyCT1g4yqivJe6c+kMo3J/ZA0/DJ94zNJz0aPfIeOT6BEhPrcSNwwwk/zTQ9zYkv97rNuzvlzYkvE827O+vhfZNffJpX0h451RFCtRnRN82XQatJySqySSL0JyHzJyKnPM0nPc1AO9UhAQBcHNXNiS8T1cVETc2kR8IxOcHj5SECABGwSc0EOtFzI3Lv4dH+usqRJ/60wh45e9HNMjvVEina4jgp2uI4h+smAG8Z6+MjI3MjcuERsEnlzQQ60TYAGyN6s8LjJ+/+usDDeichAAAisknDyyQ+BM3SPwUAAAD/Ib1KIs1JzZM8RU7EPgbN0j8OgIAAAAAAAQAABQAA/xYGwwA+zR4/1cI7KCsrEQwAzY9BtUkhDAARtUnNBDrRcyNyIz7AzXwp97LNfS8jIyMjzTw9Efj/Ge8RWUr+h8x9L808PSMjIyNxI3DJxSGtSeUGDSGjKD4EzVRJ/wMgPSDjXiNWIyMjI+MFxJ0oBfJ8KOHNqjrrwc3DP8PQRlRFWFRTWU1CRk9STEdTVUJXT1JLU1RSTkZSRUUWBcMAPs11P819L81iPM27O9oVOStETSLNScnNiS/v/pDKBin+scIeOXsf0gApzW0/Cv4w2vso/jraxyjhwx4lAwqnwv8oyXsf0gApw8co96M+wyE+ITI4Ka8ylSDNTz3+u8IoKe/DNin+wcI2Kc2SP+/3uz6AIT4/IVApxc20NdrEOMEh0UnNcj3IzdBGwzYpzRhJzRtIcCnN/kaFb3zOAGc+Incy0UkjNgDNwj7DQyk6lSDmIMjDxDjNxjz11fepzQ8u0c0yO/HDJzoRAADVGxvNTz2nyqkpzYkv4dXNTz2nyqkp97rNiS/r4+vNuzvN0EZeI1Yj432TfJra5yk6lSDmIMLnKePNwz+vxBhJfiOnyq8p8ssp6yEZN74jwtspzZo/68POKeHJFgTDAD4+rzJJSsnNND3Ne0HCCT/NFCrlKysrEatJzaNA0SG+Ss0PSMNyQM0cPc05PBYCzeY7zVkmzWhIb+Uh/30ZfLXhyP8JAFNFUSBFUlIAPoDDTUjNFj/C9TjlzTI7zX87zUA74dXrIQoAGSK3SSq1SRnrzfZB69HNMjvNljsjI34jI+Wn6/p4Ks1/O+vNfELhOrAkp8qGKvKOKiMjIyNOI0bJKrdJEfT/GSK3ScnNiS/r7/6Qyqsq/o/CHjnNdT/NfS/vMrkqK3y1ysooPgCnyP66wh45w6sqzdEqZS7TIgIge8MCIM2JL9X3us2JL+HJzU89p8pGIM2JL3o8yuI4KhsgGesqGyDN80YZ2gMrzfNGfKfIwwkrfLXIfDzIOpUg5iDAw/AqzdEqc8kWAO/+o8orKxT+lsorKxT+vcIeOdXNjy979R/a4jjv/rrKRiv+AMIeOSqYIMNXK/E89eYGwuI4zYkvzT5HwuI40fHN/EgDBgl6wy8iesN/InrDVSCvMtorIW8r5c1PPafK2Csy2iv+3MrAK/7ZysAr/rvKKAD+usqlK80PLhsaE+YBwpI/ITVKzaVFw1RJ7zqWIP460tBG1g7yrisvp/j1zRRJIPE9w7Qr7/XNjy/3tPH+2XvK0ys6liCTLz3ytCvJ4T4A/rrI/rvIw9BGPgXN0j8LgIAAAQAABQAA/ypRSs1yPSJRSsh+I6fC/it+I6YjPMrUOH7+oML+KyPD9ysquknrKrxJfLXKBTkrKysrIrxJGU4jRiN+I2ZvIstJyc1PPVdfp8SJL/cAG9U+Ac3ZJtEbeqfyQiz/BE5YVD0qy0nrw50ozfslzZM8U1RP0M0cPc05PBb/zeY7zWhIb9XNlkgrIhQgfLXCdizNKkiv0/n/BgBGSUxFINF7xjDNGEn/AyBPS3qn8nEsyc1tP83ZOv68yoct/qzMay3+qsx8LafIA/gL/gHK3Cz+AsJaOetgac3ZRERN6xG+JM2WOz7ApzK9JMkKVx4AAwrWMNrzLP4K0vMsPAcHBwdfAwr+JML7LAMczW0/Cv4owgktAz4Cs1/lxSqySURNKrBJeLHKWS1+uiN+wiMtu8pPLSMLCwsLCwvmAspILX6n+kgtIyPFTiNGIwnjfZFvfJhn48HDEy0jIyMjwxMt5gf2wFRdE8HhyesiBz19Ebgk5gf2wBITweE3yQMK/j0+rcgK/j4+rsg+rAvJAwr+PT6ryD6qC8nlA8Uh//8KAyP+IsKNLXynwgs55SK+JBG+JM1ZO8HRzXlHQksDPsERvSQSE+HJ7/XmAsK+LfHJ5Rqn+h45ylM56yMjEQAA9SMj5cVOI0bFzaRH0cHl1c2JL+ErfZN8mto7OeEZ6+HxPcr9LfXv/rrCSDnxw80t7/60wkg5IyPrKSkZ6+Hx5v3J5c0YLuERriTJzS8u/rDAzeg9zS8uzcU99c2BMfHDGy7NRi7+qMDN6D3NRi7NxT31zYwx8cMyLs1iLv6p2P6v0PXN6D3NYi7NxT3h9c2rMfHDSS7NgC7+tcptLv62wPXN6D3NgC7NxT3h9c0KMvHDZS7Nni7+t8qLLv64wPXN6D3Nni7NxT3h9c1VMvHDgy7NtS7+ucDN6D3NtS7NxT31zWYy8cOhLs1PPf62ysIu/q/C4S7v9c3hLuH1Oq0k5gHCJDl8/rbC3C7NyELxyc2XMfHJzU89/sDaBS/+yNIFL821LSGtJHcjxQYEGncTIwXC+S7Bw0897/6zwhMvzQ8u97TDTz3+jMqOMv7v2iIv/vbaHjnWyNoeOfXNDy7x9f4XOq0k2jYvL+YBwiQ58SEOL+XNB0mYL9Y0ri8VNP0yyy9VM4MwhDC5ML8wzzDeMOUwITEuMQ80HjmwM0IxHjljNOoyoC8JMAMwCTAJMGExzQ8uOq0k5gHCJDnJzX0vw2I8zYkveqfIw+I4OrAkp/zIQskRriTNOTynysMwfsPDMM1iPNUhAQAiriQRriTNWTvNWzHRe+Z/d8AyriTJIbAkfqf1/MhCEf8vzfZBI8VGBBEAAEoF8u0vN82hRMPiLyt+oXcrfqJ3K36jd8Hx/MhCyQAAQW86riTDwzD197rN6T3Njy9THgHNyD3x/jTKMTDaVDA6tCRfutIqMFd7kl8cw1QwWnqnyuI4Fv/NTz3+tMpUMO/+usIeOdXN7z3Njy/NyD3r0VU6tCSTPNJdMK+60mIwVyYAaiKuJNURriTNWTvj5RG0JM05PNF7Pc3uRnrr4cNYMT6v9c1/QM1PPf60yrUw97rN7z3NfS/NxT3N6T0RtCTNfEI6sCRXzb898fWq9H9Aw4kw8cN/QM2wA8PDMM1iPBpfFgDNgDw+wDKtJMnNYjxjLtsiAiDNAiDDwzA6liA8w8MwOrAkpyFMRxYPyhEx8vcwKq8kfKcfZ30fbxcXFxetFxcX5kC0ZxXC9zAi6jDrIa4kNgAjcyNyIzaAw4hCzWI8Ie4DGX72gMPDMBEAADqwJKfKgDwT8oA8zYA8w8hCITVKzaVF5W8mAPUiriQRriTNWTvx0c37OT7BMq0kyRGuJM05POshNUrN+zk2ACE1Sisjfv4gynQxzdlEw8kwzbU9erRXe7XDpzHNtT16pFd7pcOnMTqtJP7AwiQ5zV88ei9Xey9fw4A85c0jO8LVMc18QjqwJKfhNz8+AcrGMRfyxjEXb3zWqKURAADKxjAbw8YwxRGuJM05PEflEbQkzTk8T9HrBAwFyv8xDcr7MRqWwgYyEyPD6TENwwYyDcoGMj4Bp8HDuTE+tbzCTzLNIzvK9kE6riRvOrQkhdoLOW8mACJLMhFLMs1ZO+URtCTNOTzr4c37OeURriTNOTzr4c37ORFLMsN/O3l5eXnN5z7DfEI+uLz1zec+8cLZQs1/QMO2Q81/QDqxJKfCfzI6tySnwBFZSiGuJM08PcnN7z3NVTPNxT3N2ULD/TLv5gLKHjkap/JlORPrXiNW68XjweXNxjzh1fXv9f66yrUy/rTCHjnF48HNDy7xMsky8dHNMjvNJzrv/gDC4TL+tMKfMsXjweX3qc0PLvcAwcNPPc17OUFSRyBD1CpOSny1ymU5xdUBriTNtALRwcnFOrAkp/X8y0IhUTPN3ULNijvNXzx6p8obMzzC/DjVzYA8IbQkzYBCzT81BoIMe3cDpEl6EVVyfGr1en49uViA//9/gNF7IbEkhnfa/Djx/Io1wckdVVyBxSGwJH6n+vw4yvw4I14WANU2gM0rNQQAAECBcNhmgwW5SIN6glp/BMz7TIORsWGDRhm5hCxAvoLNijvRzYA8IagzzfpBIbQkzfpBIawzzd1CwckAAICHDLlYgMXN6T0hsCR+p/riOMoKNCN+1n8f9T/DzTPWfx/1PoDeAHfNPzUFKw+tf9cFRIFri6GBePZigfKCYX7xIbEkhnfNijvNvz0htCTlzbpD4c36QSGxJH7WAXfByc2/PcHJEWlKzfZBxc1qNTqwJKf8y0IhbUrNmTUhaUrNmTU8HzJcNNo9NCFpSs36Qc3LQiGuJM3dQs0/NQVYHWFxWDWld7dTVXwQAIB/AABAgT4AH9zLQsHJzWo1OrAkp8jFBzJcNNzLQiFxSs2ZNSFpSs2ZNafKkTQhXDSudyFpSs36Qc3LQiF1Ss2ZNTLONKfKpzQhdUrN+kHNy0IheUrNukPNIjUDAABAgWlnuIfmnUOJAtmSm4RUNmqIzcU9683dQj4AH9yKNcNbNMU6sCQHMlw03MtCOrEk1oH11Io1zSI1AwAAQIFuWkOD2n50ggRuAKp6RCJTfwvgX4LafnSCzcU9683dQvHaHzUhaUrN+kHNy0LDWzTN6T0hriTN3ULhzUQ15c3pPeHNRzXlzcU968O6Q+HNRDXpzYo7fvUj681/O+vDYDX15SG0JM3dQuHlzfpB4fEjIyMjPcJSNck6sST+htjFzYo7IW1K5c26Q83LL+HN3UIhtCTNgELByc2KOxFZSs1/OyG0JMO6Q6/1zYo75c36QeE6sCSn+q818TzDmjXNf0DxySEAADki8zbNG0jsNjLQSSGVIH7m/Xc+AfWnzNBGEdBJBgAaE/4Nyto2p/QYSc1GIP4KyoQ2/n/C9TXxzdBGw8o1/gjKiTZP8fU9sHn0cEcS/g3CDjZ4p/qENj41u8qENhr+IsIlNnin+iI2woQ27oBHE68SG8VCS83ZOsH+AfV4p/o/Nj3KTTbydjbxwtY18fWA+tY1R8PWNfHC1DUbzfo2woM2BBN5PMrWNRt5Eiv+nMJtNvGv9T6czZo/BgATw+E18cKENhsbzfo2ymA2ExM+B8PYNXin+pM2BfKTNgQ+0bvKhDYbGv4ieMKkNu6AR6fCuTYbGhP+Qdq5Nv5b0rk28fWARxqnPgjy2DUaIRg3I77CxDbNFEkII36n8sk28T4B9cPhNRsbGv4gyts2E68SzdBG8cPCPjqVIOYgyDEAADf7w8I+IRk3TiPVGhOnyhc3viPKADfRfqf6/TYjwgw3PMnRyf9DT/9ERf9HT/9JTv9MRf9MSf9MT/9NSf9QQf9QRf9QT/9SRf9TVP9UQchBQlOoQU5E30FTQ8lBVE6AQlVJTETKQ0hSJIlDTEVBUopDTlRSTIFDT05USU5VRctDT1OgREFUQaFERUaCREVMRVRFi0RJTYNEVU1QokVORMxFWFD0RkRVTVDzRkxPQUSMRk6NRk9SjkZSRUXxR0VUj0dPU1VCkEdPVE+RSUajSU5QVVTNSU5U4UxFTuBMRUZUJJJMRVSfTElORZNMSVNUhExPQUTvTE9DS85MT0fPTUFY4k1JRCTQTUlOlE5FWFSvTk9U9U9MRExPQUSVT06wT1KWT1VU0VBBRJdQQVVTRdJQRUVLvVBFUk3TUElOmFBPS0WZUE9SVNRQT1PyUFVUmlBSSU5Um1JFQUScUkVNnVJFU1RPUkWeUkVUVVJO41JJR0hUJNVSTkSFUlVOhlNDUkFUQ0jWU0VH11NHTthTSU7ZU1BD2lNRUttTVFIkh1NURVCkU1RPUNxUQULdVEFOsVRIRU6yVE/wVU5MT0NL3lVTUuRWQUyIVkVSSUZZAP/NczlDVEwtw817OUNUTC3CzXs5Tk8gREHUzXs5L7DNezlOVc3NezlVU8XNezlMT0PLzXs5TlhUv817OU9WUkZMz817OVJUzs17OVNUUiBMRc7NezlTVEFUIKPNezlTWc7NezlUWVAgQ05GTEPUzXM5TUVNIE9W0s17OVNVQlMgUkFOR8XNezlTVUJTIENO1M17OURJTb/NezlJTEwgQ0hB0s17OUZOIL/NczlUQVDFr9P5PoAyCCAhrUleI36nwos5e/4E3Pc+OsggzVUgrzKVIP8MAAchIEVSUk9SIC0gw5w8zTQ9IdFJzX9Gzcw6Kz4gI77KtTnNwUY9ysM5xgNPK3Irc+Uqq0nlzbs7BgDa3zkjI83BRsYCRysr0X2Tb3yaZ3mQX59XzZdBq0nrKqtJGdEGAMN5R8VPBgDNeUfByeXVExMabxMa0WfjzaNA4RqFbxMajGcbyc1PPfWvMlA9w2095Wc6rSQvrOYByiQ5pMqXO81AO9XNMjvNOTxXOq4kkl+fV9XlKlNKGSJTSuHrKsRJe5Vvepxn0XoXzZdBxEnV6yrESRnReqf0mUDRzTI7Oq4kEs05POURriTNOTzr4c37OeHJxRoTExMT1SEBAONeI1YjweX1zaRHwuI48T3ClDrRwckhrUnlIb5KPgbjXiNWIyMjI+MZPcKzOtEbGxqVbxManGfJerPK4jgTerMbyuI4yQqn+Mj+MNrzOv46PgLYCv5B2vM6/ls+AdgK5SEAO83jSH7hyD4DySu1LbYosym0KrcvuF65OgAuAiy6PKw9qT6qO7sivFuzXbQAOq0kIbMkL67mAcokOabJ9eUqsEl7hV96jFfh8cn15SqwSXuVX3qcV+HxySpTSiMjIlNKLlU6LlcmSiM0K8JkOzTFRiNO614jViNwI3ETE+sRxEnNBDpwI3Ejwcnl1SGuJM08PdHhyeURrSQhsyTNQj3hyeXV6xGuJM08PdHhySpTSiLGSSHAACJXSsl+h4eGI+shq0nD7kbFIb5KejzCyTt7PMoVOXuWR3ojntrjO8LZO7DK4zsjfiOnwto7w8k7K8HJMhQ8IhE81a8y9EfNaEhv8fX+/8oAPLrC8Tt7p8LxO+sh0UnlzQ9Ir3fhEQAABgAF+iM8Gr4TI8LxO8MVPP8GRk9VTkQgIdFJfiPNGEmnwi484cka9RMT61YjXirESXqn8lw8viPCUzx7vspcPCN+p/JTPMNEPCPxyRGuJMXl682uRHmn+uI4PpCQ2uI4xgdHzZ9EBcJ2POHBycXlAQCXzZFCzatDPsAyrSThwck6yCDNVSDN0Ebhfs0YSSOn8p08Icsk5SFNSn72gHf+gMj/CSBBVCBMSU5FICrLSevDwz/N4jz1zUA75gHK4DzVzTI71RMTGtGnzE470fHJzaI77/7A2h45/sjSHjkhPdsZ2hg99eYCwlM5EbBJIQYAzQQ6EQAAciNzI1Rdr3cjdyN3I3fx3LYtyc0bSMQ4zcxH98HJ7yE92xna6DjuAsP3PDpJSqfC7jjJxQYEw0U9xQYFGncTIwXCRT3ByT4A/sDaXj3+yNJePREAAADNoizrIlw96zJQPfU+yTJePfHJzU89p8jWtMgrI37+IMp7PafKsz3lzcY84dX1zd4+xePBCv4swp890fEDw609zQ8uzd4+8dHNMjvNJzrF48HDcj20yc3nPs1iPOvDXzwhrSTDyz0RtCQhsyT11eUqwUkR+/8ZIsFJ0t046yq/SRnr4c1CPdHxye8hrSTD8j0hsyTlIQUAEb9JzQQ60cNCPc00Pc17QcIJP3r18fVX1c0cPc05PNHNzEfN5jvNojvNaEhv8fXlusIvKj4Bu8IvKuHrIdFJzQ9IIdJJfqfySz4jEVVKfhIjE34SI82vOyMjr3cjd+sjI348wks+IQAAIrdJIrxJIsFJIdJJzQ8/za871evh5X4jZm/No0DhIyN+PMJuPs1oSPH2gLrCLyo+ArvCLyoh0knNDz/NrzvVfiNmb+t+I2Zv680JSOEjI348wpo+zRJIKsZJIlNKze4pw3JAIck+IpMgyTqVIOYgyCrCICLEIDqVIPYCMpUgye+nyP66yMMeOc0jO8jDJDnv474j48jDHjkhAwAirUkh//8ivkoBwEqvAsnvp8IJP8l+p/AjIyPJzU89V1/KJj/Nxjz+wMIeOcUqt0lETSq1SeUJeLHKVz/FAfX/CcF6s34rymc/usJMP367ylg/edYMT3jeAEfDMT+0IyNETeH1eZVveJxn8cHJXiNWw1k/Cv4gwAPDbT/F5c0JPyEEABG6Sc0EOusqy0nrcSNwI3MjcuHByc05PKfEVEnJ/u/apj/+9j4g2rI//sg+INqyP9qyPz4o9X4jp/q/P80YScOzP/HDGEnlzYA8ITVKzaVFzVRJ4cnhIntA9c0cPc05PEfr8fVnLgDNpkhoJgDNxUjrzZFJzaI7KntAI8UBAAB+p/IMQCMRVUoadyMTGncjza87IyN+EiMTgU9+EhOIR+t+PMIMQGlgIn1AweHlLgHNpkgqe0DlbiYAzcVI6+HNkUnx9oBnLgLNpkgqfUDNxUgqe0AjzQ8/za871V4jVuvl6yNeI1bhzYtJ0esjI348wlRAzZRJzfhHAb1Kw8I+eXl5ecXV5RGtJCGzJA4FGkZ3eBITIw3CikDh0cHJerPINgAjG8OZQMXV5esi7UBOI0YjxU4jRiPrCURN4Qna0EDrI3uWI3qe0tBAKysrcCtx4dHByc1PQSEKABnR1RnaMTnrKslJe5Vvepxn0jE5weUhAAAjI14jVusJ63Irc8EmAzd4H0d5H08lwv1AA3in8jE5OkxBIcpJViteK/XFK0YrTit7kV96mFcrK37j6xk9wipB6+PlI35z9SN+cmfxb+vlzXlH0eHB8T3CGEHRwckFqkkqTUE6TEEjTiNGI14jViPrCev1I05zI0ZyI8VOI0Yj4+vNeUfr4fE9wmFByf8GB1NVUkU/zUYgzUkgzXBH/lnJey9fei9XEzcisEHr414jViPj5cXazUHlzaNA614jViMBAADrCet+kU8jfphH4XmVT3icRxnNeUfB0SqwQcl8L2d9L28j604jRsUjfpNPdyN+mkd3KrBBeZVPeJxH6+MZ6+EZ68PEQc2TROvNrkQhsSR4t8h+t8qrQ5DSHkIqriTrIq4kKrAkxePBIrAkLzzKSEL+GNo7QhEAAErDSEJaUXkXPgCfT3zWCMpIQmf+CNItQs2fRCXCQUIhriR59X6LXyN+ilcjfolPfiNGH2fxH6wXqazybkJ8zaBEBMr8OMXNkULxkP4V1JdCw6tDzZNE6+XNy0Lhw/pBzZNEzatEw25CebKzwqhCAQAAUFjJSlNfeNYJ2vw4PEd5F6kX2HoXeRfStUI8p8qdQs1HRAXKl0J5F6kX0rlCyc2TRM2rRM22RMOrQzqwJKfJzZNE6xGAAM1SRMqmQ9r8OGfleTIiQzJEQzJpQ3oyQEMyZUN7MmFDIbAkfjJXQyt+Mi9DK0YmB2wRAABKeKfKLUN4H0d50iNDxgAfTyXyGkPSLUMMZQYAOq4ksMpWQ3gfR3nSRUN6xgBXec4AH096H1cl8jdD0lZDFMJWQwwGAHgfR3nSakN7xgBfes4AV3nOAB9Peh9Xex9fLcJYQ9KCQxzCgkMUwoJDDHnhRBen+pRDexdfehdXeRdPBQTK/Dh9p/y2RHinyqtDBcKrQwEAAFBYIa4kcyNyI3EjcMnNk0TrEZA/zVJEwstDeKfK3TjDpkPa/Dg8yvw4Z+V7Mv1DejIBRHkyBUR5MhREejIQRHsyDETNq0Qr5S4DPgK93vpnBgB71gBfet4AV3neAE/SFkR7xgBfes4AV3nOAE8/eBdHzUdEJcL7Q+NwK+MtwvND4SMjWFYjeU7hRGc6BUSU3NNEeeZAwpRDzUdEw5hDp3sXX3oXV3kXT8nl6yJ6RCGuJDqwJDJwRKf8ikThza5EeW+n/LZEfe4Ab3inyDqxJKfIgABHH6h48oZE7oDJB9ivyc2rRM22RMOrQ+PVxQGbRMXpwdHhyXkXeR9Peh9Xex9fySGuJF4jViNOI0bJeS9Pei9Xey9fHMAUwHkMp/qRQnmn8ATK/DjDoUQcwBTADMnF1X7+LfXC40Qj5QYGBcoxRX4j/i7K5kT+MNr7RP462uZE4REAAM2IRgYAPi6+zKFGxUpTr19DebLKI0UGj3oXV3kXTwXmQMoXResiriRgaSKwJOvBw0hFzaZDBochtCTNrkPhzaVGBgA+Lr7MvUY+Rb4+AMJ2RSN+1ivKYEX+Aj6AymBFrysj9UjNf0ZB43qnwuI4fBd70nVFLzzhgMqeReUh3UIilUUhXUrykUXlIbpDIpVF4S88T8Xlzd1C4cENwpJF4fHMyELRwcnF5TYgOrAkp/K3RSM2Lc3IQrQjBgHK9EURvUXVEV1KOrEkBf6B2tlCBATWhdK2Qzz64EU6sCT+UNK2QwXROrAk9RF7Rs32QdE6sCS6wr1FeP4H9dr9RQYBDgcEBcIHRjYuIw3KPEblIbEkVnr+gT4A2itGrzcfFfoZRlYrpl+ud3sHFfomRsYw4XcjzYhCEV1KzdlCwwBG8dpjRjZFIzYrPfJNRjYtLzwjNi801gryUEbGCiM2LzQ98ltGw3BGK37+MMpjRv4uwnBGKyM2ICPRfZPrG8HJKQAAgM3fRtriOBEAAM3fRtjl6ylUXSkpGdriOF8WABna4jjr4QUjw4hGzd9G2DK2JOXFIV1Kzd1CIbQkzfpBweEFI8OlRuXVFgB+FKcjwsVGetHhyf8GDQqAgICAAAAAAACvyX7WMNj+Cj/J1V8WABnRyYVv0CTJfC9nfS9vI8nN0EYh0knNRiD+f8r7Rnf+CMIcRys+0b3K/kb/AQjDAUc+Nb3KOEd+zRhJI/4NwgFHzdBGKzYAfSHSSZXJ/wEHwwFHerMhS0fNbEl+I2ZvyWkwAKUMAFrAAEsGANIYALRgAC2AATwQAB4gAA9AAG4XhJYAAwD+Ydj+e9DWIMl4sch9k3ya2plHCwnl6wnlA34SGysLeLHCikfR4RMjyRp3IxMLeLHCmUfJr/UhAAB4H0d5H0/SuUcZ0rlH8Tz1eLHKykfrKevSqUfxPPXDqUfxyfXlIehHIiAgPsMyHyA6CCAy+UchAIEiByDh8ck6GyDmH8AG/yERID4Aw1IDPsAyCCDJzZZI6yIUIOt3Ixt6s8L+R8nNCUjlzSpI4a/T+cnj9X4ykyAjfjKUICPx48nNkkgqFyB8tcj/FgBDSEtTVU0gRVJSIC0gSUdOT1JFP4A+WWev0/k6HCAf3F4COlggp8pRSM1GILzIKhkg6REAAGJqzZZI6yIUIOsc/hbKbUj+AsJoSD4Ku9JoSCIXIM2SSG9UX83YSM2WSGc+NNP52/nmAsqaSNv4w+cCPhHT+eXN2EgmHj4WzcpIJcKwSD4CzcpIIQAAIhcg4XzNykh99dv55gHKy0jx0/jD5wJ95g8XFxeEMvRHycX+AMr4SEd+I7jK+kinI8LqSCsrr/4Bwcnj1V8WABleGdHjyQfj9c3uRn4jZm/x48njfiPj9eZ/zUkg5SGWIDT+INIpSTX+CMIvSTX+DMI2STYA/g3CPUk2AH4jvtTQRuHxyeN+I+XN50bjzVRJ4ePJp8j1fiOnwmNJzdBGw2ZJzRhJ8T3CVEnJxUd+I7jKfkmnIyPCbkkrKyu0wcl+I83KSOsiFCDrG3qzwoBJyc2LSSoXIM3FSNv5p/qaSRHMEBt6s8KjSckBvkoDAAHBSgAAAcFKAAABwUoAAAHBSgAAA8FKAAAAAAAAAAAAKip5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXkAAAAAeQAAeXl5eXmAAMAAAABAgQAAUIRmZmZ9AAAAABJ4m4ESeJuDEnibghJ4m4Duh2SAeXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eQB5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5zYRLOhsgZ28i6jDN7CI+gDIIIP8vAABFeHRlbmRlZCBCZW50b24gSGFyYm9yIEJBU0lDICMxMC4wNi4wMC4gICAgAAAhAP85IslJIWw5IhkgIVkmIsYk5SrCIDrEIL3CeksBCQARkEshKyDDeUfDHDrD7j7DRknrKdhUXSnYKdgZyT4F5fUhy0sHze5GfiNmb+s+/xk82rZLxjDNGEl9k198mlfxPcKnS+HJ///2/5z/GPzw2AAARVhURU5ERUQgQkVOVE9OIEhBUkJPUiBCQVNJQwAgQ09QWVJJR0hUIFdJTlRFSyBDT1JQLiwgMDEvNzcAIENPUFlSSUdIVCBIRUFUSCBDTy4sIDA2Lzc4LCAwNS83OQAgSVNTVUUgICMxMC4wNi4wMC4gICAgACrDJPnN8kwhwiQiQSDDwiQhvkw+ENPsPoDT634j0+h+5n/T6b4jPgPKfEw+B9PrPm7NKwDb7Obv0+zb6NvtHx/aiUwXF+YNyotM5gjCq0zb6OZ//iDKuExuw2JMPjfNKwDb6NvtI8OnTCtWK17ryTAAwsYMAMrOwADS1gYAvr4YANreYADivoABvuYQAL6+IAC+vkAAvr4XhOruAAO+vgAGvr4hxiA+BDb+Iz3C90zNhEs+bs0rAK/T6dP7PgPT69vr/gM++iqYIMIgTc1fTD7pIkpKMkxK9c1MIPEf2M1GIO4gwi1NMpUgyc0USQfDhE0hj08RYEsGBK8OBIeGIw3CS02nwlhNPt/GQRITBcJITSpgSyJKTCpiSyJMTCrDJHy1wnhNOSLDJPnN8kwh10s+eM1USSrDJPmvMpUg/wIALs1GIM1wR/5QyspN/lPKEE7+SMpQTv5DyoBO/kLKsk7+TMrhTv5ByhNP/lLKSE/+DcpWTM0USQfDkE3/BlBBRCA9ICHRRn7GLs0YSc0USS/NRiD+MNo5Tf460jlNzUkg1i53IyMjBgnWAsoETjaAIwU9wvxNeKfKhE02ACM9wwVO/wVTQVZFP81GIM1JIM1wR/5ZwoRNzcxHIQGBzaZIIfkszcVI6yFPTCJBICFAIM3FSCFAIM3FSM2RSc34R8OETf8OSElHSCBNRU1PUlkgPSAhAAA5682kS80USS8h0UnNXk8hYK8Z0jlN6yLDJMOETf8RQ09OU09MRSBMRU5HVEggPSA6lyBfFgDNpEvNFEkvIdFJzV5Pe/4K2jlNMpcgw4RN/wdCS1NQID0gIaBPBgURCADlxc2kS80USS8h0UnNXk97weFeI1YjEgXC1U7DhE3/EkxPV0VSIENBU0UgKFkvTik/IM1GIM1JIM1wR/5ZBgDKDE8GIP5OwjlNeDLuI8OETf8VQVVUTyBORVctTElORSAoWS9OKT8gzUYgzUkgzXBHBtT+WcpBTwY6/k7COU14MkBJw4RN/wlSVUJPVVQgPSAhqk8GAhF/AMPDThEAAM2CT9o5TcNuT82CT9jlzZlL2jlNXxYAGdo5TevhI8NqT81GIM1JINYw2P4KP8kAAAAAAAAAAAAAAAAAAAAAyfY1vDbMNipJwU5ZT+o1ebs/uz8=";
+const EXTENDED_BASIC_TAPE = Array.from(decodeROM(EXTENDED_BASIC_TAPE_B64));
+
+// HBCONS - Heaths winziges (336 Byte) Konsolen-Konfigurationsprogramm, das VOR
+// Extended Benton Harbor BASIC geladen und gestartet werden muss: es legt an
+// festen RAM-Adressen kleine IN/OUT-Trampolin-Routinen fuer die Konsolen- und
+// Kassetten-Ports an, ueber die BASIC dann indirekt auf die Hardware zugreift
+// (Hardware-Abstraktion, damit dieselbe BASIC-Datei mit unterschiedlichen I/O-
+// Karten funktioniert). Ohne HBCONS bleiben diese Adressen leer/uninitialisiert
+// und BASICs Konsolen-Eingaberoutine haengt nach dem Start fest, ohne je ihr
+// Anmelde-Banner auszugeben (empirisch verifiziert). Ebenfalls ein reales,
+// unveraendertes Kassettenabbild - keine Nachbildung.
+const HBCONS_TAPE_B64 = "FhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYCgQEBJSBAIEDDbiHDdCHb+snT+snb+8nT+8nb+8nT+8nb+MnT+Mnb+cnT+cnDrSDD2iDD9yAAWQ0NDQ0NDQMAAAAAAAAAAAAAAAAAAXeIAm+QA1+gAP8AAXeIAm+QA1+gBD/AD38CEH0AEX4AE34Bf0ggAAZQ5SFtIH6nyrEg89U1ViN+/nvSyCD+YdrIINYg9RX61SAjfit3I8PJIPvx0eHJ9TqqIB/a2yAf0uwg8ck1Pgf1zVIgH9LsIPHDSSA+gc1PIM1hID5AzU8gzWEgPk7NTyDNYSCvMm0gPsMyJSAhIyEiJiA+F8NPIOX1zUwg5gLEMSHx4fvJIW0gPh2+3OggNH6Fb81GIOZ/d/4g0C6KIyO+2CPCSSE6qiCmI64yqiD1Lm018fAqqCDpAPmT";
+const HBCONS_TAPE = Array.from(decodeROM(HBCONS_TAPE_B64));
 
 // Rohe Bus-Werte fuer IN 360 je Taste, aus RCK-Tabelle im Original-Quelltext.
 const ROM_KEY_BYTE = {
@@ -1460,6 +1488,94 @@ function maybeAutoLoadSerialEcho(){
   if(btn) romLoadSerialEcho(btn);
 }
 
+// Direktstart "Extended Benton Harbor BASIC": legt das echte Kassettenabbild
+// (EXTENDED_BASIC_TAPE) auf das virtuelle Band und drueckt LOAD - dieselbe echte
+// PAM8-ROM-Ladefunktion, die auch selbst gedumpte Baender liest (Sync-Byte-Suche,
+// STX, Header, CRC-16, siehe Kommentar bei romIoIn/romIoOut). Beim originalen DUMP-
+// Vorgang wird laut Handbuch (595-2014-02, S.30 "Enter the entry point address in
+// the PC register") die Einsprungadresse mit gesichert; PAM8s LOAD stellt sie beim
+// Laden automatisch im PC-Register wieder her, weshalb laut Handbuch (S.31,
+// "EXECUTING A SAVED PROGRAM") anschliessend GO ohne erneute Adresseingabe genuegt.
+// Auf das Bandende wird gepollt (cassette.pos), statt eine feste Wartezeit zu
+// raten, weil kein echtes UART-Timing nachgebildet wird (s. Kommentar bei "cassette"
+// oben) und die tatsaechliche Ladezeit deshalb von der ROM-eigenen Polling-Schleife
+// abhaengt, nicht von einer festen Baudrate.
+async function romLoadExtendedBasic(btn){
+  if(btn.disabled) return;
+  btn.disabled=true; const label=btn.textContent; btn.textContent='Kassette wird geladen …';
+  try{
+    // HBCONS zuerst laden und starten: Heaths winziges Konsolen-Konfigurations-
+    // programm richtet an festen RAM-Adressen die IN/OUT-Trampoline ein, ueber
+    // die BASIC dann indirekt auf die Konsolen-/Kassetten-Ports zugreift (siehe
+    // Kommentar bei HBCONS_TAPE_B64 oben) - ohne diesen Schritt bleibt BASICs
+    // Konsolen-Eingabe stumm (empirisch verifiziert). HBCONS kehrt nach dem GO
+    // nicht zum Monitor zurueck, sondern bleibt in einer kurzen Warteschleife -
+    // romLoadTapeAndGo holt sich die Kontrolle vor dem naechsten LOAD selbst
+    // zurueck (siehe romRegainMonitorControl).
+    await romLoadTapeAndGo(HBCONS_TAPE, 20);
+    await romLoadTapeAndGo(EXTENDED_BASIC_TAPE, 300);
+    // Nach dem GO laeuft BASIC nachweislich (echter Code im RAM, PC verlaesst das
+    // ROM) und wartet danach in einer engen Schleife auf ein RAM-Flag, das laut
+    // vorhandenem Kommentar bei usartReceive ("der abschliessende CR nach dem
+    // BASIC-Laden") ueber ein von der Konsole empfangenes Zeichen gesetzt wird -
+    // deshalb hier probehalber ein CR ueber denselben Empfangsweg schicken. Nicht
+    // abschliessend verifiziert: In eigenen Tests blieb der H9-Bildschirm trotzdem
+    // leer, das genaue Protokoll fuer BASICs Anmelde-Dialog (Quelle: Heath Software
+    // Reference Manual 595-2048, Abschnitt 5) ist hier noch nicht vollstaendig
+    // nachvollzogen. Bei Bedarf nach dem Direktstart manuell am H9 RETURN druecken.
+    await delay(300);
+    wire.toH8.push(0x0D);
+  } finally {
+    btn.disabled=false; btn.textContent=label;
+  }
+}
+// Bringt den Monitor in seinen Grundzustand zurueck, OHNE das RAM zu loeschen -
+// im Unterschied zu romDoReset(), das fuer einen zuverlaessigen Kaltstart bewusst
+// auch das RAM neu initialisiert (siehe Kommentar dort). Hier soll das gerade
+// erst von HBCONS eingerichtete RAM aber erhalten bleiben. Empirisch verifiziert:
+// PAM8s LOAD-Kommando nimmt keine Tastendruecke mehr an, sobald ein Fremdprogramm
+// (z.B. ein zuvor per GO gestartetes) die Foreground-Ausfuehrung uebernommen hat -
+// ein reiner CPU-Register-Reset (wie ein "warmer" RESET am echten Geraet, laut
+// Handbuch: "Reset laesst das RAM unangetastet") holt den Monitor zuverlaessig
+// zurueck, ohne dabei etwas im RAM zu zerstoeren.
+function romRegainMonitorControl(){
+  if(!rom.cpu) return;
+  rom.cpu.reset();
+  rom.cpu.pc = 0;
+}
+// Legt tapeBytes auf das virtuelle Band, drueckt LOAD und wartet per Polling auf
+// cassette.pos, bis das Band vollstaendig gelesen ist (oder die Position sich
+// maxIdleTicks*100ms lang nicht mehr bewegt), und drueckt danach GO. Gemeinsame
+// Grundlage fuer HBCONS- und BASIC-Direktstart, siehe romLoadExtendedBasic oben.
+async function romLoadTapeAndGo(tapeBytes, maxIdleTicks){
+  // Falls das Echo-Demo (siehe maybeAutoLoadSerialEcho) gerade selbst noch
+  // automatisch eintippt, dessen Tastendruck-Kette erst zu Ende laufen lassen -
+  // sie teilt sich mit unserer eigenen rom.keyByte und wuerde sich sonst mit
+  // unseren eigenen Tastendruecken gegenseitig ueberschreiben.
+  const echoBtn = document.getElementById('btn-serial-echo');
+  while(echoBtn && echoBtn.disabled) await delay(150);
+  if(!powered){
+    // Verhindert, dass maybeAutoLoadSerialEcho (aufgerufen aus powerOn(), falls
+    // H9 schon an ist) waehrend unseres eigenen Tastatur-Ablaufs dazwischenfunkt.
+    serialEchoLoaded = true;
+    powerOn();
+    await delay(800);
+  } else {
+    romRegainMonitorControl();
+    await delay(800); // nach PC=0 laeuft PAM8s RAM-Groessentest erneut, s. CLAUDE.md
+  }
+  cassette.data = tapeBytes.slice();
+  cassette.pos = 0;
+  cassetteChanged();
+  await romPressAndRelease(ROM_KEY_BYTE.LOAD, 80, 60);
+  let lastPos = cassette.pos, stableTicks = 0;
+  for(let i=0; i<300 && stableTicks<maxIdleTicks && cassette.pos<cassette.data.length; i++){
+    await delay(100);
+    if(cassette.pos === lastPos) stableTicks++; else { stableTicks=0; lastPos=cassette.pos; }
+  }
+  await romPressAndRelease(ROM_KEY_BYTE[4], 80, 60); // GO - startet ab der beim Laden wiederhergestellten PC-Adresse
+}
+
 /* ================= EVENT WIRING ================= */
 function keyByteForButton(btn){
   if(btn.dataset.num!==undefined) return ROM_KEY_BYTE[parseInt(btn.dataset.num,10)];
@@ -1498,6 +1614,7 @@ document.getElementById('btn-mute').addEventListener('click', (e)=>{
   e.target.textContent = muted ? '🔇 Ton aus' : '🔊 Ton an';
 });
 document.getElementById('btn-serial-echo').addEventListener('click', (e)=> romLoadSerialEcho(e.currentTarget));
+document.getElementById('btn-extended-basic').addEventListener('click', (e)=> romLoadExtendedBasic(e.currentTarget));
 
 document.getElementById('btn-cassette-rewind').addEventListener('click', cassetteRewind);
 document.getElementById('btn-cassette-eject').addEventListener('click', cassetteEject);
