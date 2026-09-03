@@ -433,7 +433,9 @@
     (Intel 8251) auf Port 372/373 oktal – genau diese Ports simuliert das Echo-Demoprogramm, inklusive einer
     minimalen Mode-/Command-Initialisierung und eines Statuswort-Bits (RxRDY) zum Pollen. Baudrate, Enable-Bits
     und Fehlererkennung des echten 8251 werden dabei nicht simuliert – Bytes laufen verzögerungsfrei durch. Der
-    Kassetten-USART (Port 370/371 laut selber Jumperung) bleibt wie zuvor unangeschlossen. Short Form, Plot-Modus,
+    Kassetten-USART (Port 370/371 laut selber Jumperung) hat eine eigene, ebenso vereinfachte Statuswort-
+    Nachbildung – siehe Karte „Kassettenrekorder“ oben, dort laufen LOAD/DUMP über die echten PAM8-ROM-Routinen.
+    Short Form, Plot-Modus,
     die sieben wählbaren Baudraten, Off Line, Break und Xmit Page aus dem H9-Original sind nicht nachgebildet.
   </footer>
 </div>
@@ -912,7 +914,7 @@ function romPowerOn(){
   beep('medium');
 }
 function romPowerOff(){
-  if(rom.runHandle){ cancelAnimationFrame(rom.runHandle); rom.runHandle=null; }
+  if(rom.runHandle){ clearTimeout(rom.runHandle); rom.runHandle=null; }
   if(rom.keyHoldTimer){ clearTimeout(rom.keyHoldTimer); rom.keyHoldTimer=null; }
   rom.cpu=null;
   romRender();
@@ -974,9 +976,15 @@ function romRunLoop(){
     rom.ionSeen = iffSeen;
     rom.userSeen = userSeen;
     romRender();
-    rom.runHandle = requestAnimationFrame(frame);
+    // setTimeout statt requestAnimationFrame: rAF-Callbacks werden von Chrome
+    // in einem verdeckten/inaktiven Tab komplett ausgesetzt (nicht nur gedrosselt) -
+    // damit fror der komplette Emulator (inkl. laufendem LOAD/DUMP) ein, sobald
+    // der Tab den Fokus verlor, und blieb dort haengen, bis man zurueckwechselte.
+    // setTimeout wird in Hintergrund-Tabs nur gedrosselt (min. ~1x/Sekunde),
+    // laeuft also weiter, statt komplett zu pausieren.
+    rom.runHandle = setTimeout(frame, 16);
   }
-  rom.runHandle = requestAnimationFrame(frame);
+  rom.runHandle = setTimeout(frame, 16);
 }
 function romRender(){
   const el=document.getElementById('status-line');
@@ -1168,16 +1176,18 @@ function h9RunLoop(){
     if(h9.hold) wire.toH9.length=0;
     else while(wire.toH9.length) h9ApplyByte(wire.toH9.shift());
     h9Render();
-    h9.runHandle=requestAnimationFrame(frame);
+    // setTimeout statt requestAnimationFrame - siehe Kommentar in romRunLoop:
+    // rAF wird in einem Hintergrund-Tab ausgesetzt, setTimeout nur gedrosselt.
+    h9.runHandle=setTimeout(frame, 16);
   }
-  h9.runHandle = requestAnimationFrame(frame);
+  h9.runHandle = setTimeout(frame, 16);
 }
 function h9PowerOn(){
   h9ResetScreen(); h9.flashUntil=0;
   h9RunLoop();
 }
 function h9PowerOff(){
-  if(h9.runHandle){ cancelAnimationFrame(h9.runHandle); h9.runHandle=null; }
+  if(h9.runHandle){ clearTimeout(h9.runHandle); h9.runHandle=null; }
   h9Render();
 }
 function h9TogglePower(){

@@ -39,10 +39,13 @@ There is no build, lint, or test tooling. Development loop:
 
 ### Testing gotchas (read before spending time debugging "broken" behavior)
 
-- **Browser automation tabs often run in the background**, and Chrome does not fire
-  `requestAnimationFrame` for hidden/unfocused tabs. Since `romRunLoop`/`h9RunLoop` are driven by rAF,
-  the emulator will appear completely frozen under automation unless you patch it first:
-  `window.requestAnimationFrame = (fn) => setTimeout(() => fn(performance.now()), 16);`
+- **`romRunLoop`/`h9RunLoop` are driven by `setTimeout`, not `requestAnimationFrame`.** This was a
+  deliberate fix (see git history): rAF callbacks are fully suspended by Chrome for hidden/unfocused
+  tabs (not just throttled), which used to freeze the *entire* emulator — including an in-progress
+  cassette LOAD/DUMP — the moment a tab lost focus, with zero feedback to the user. `setTimeout` is
+  only throttled (clamped to ~1/s) in hidden tabs, so background-tab automation is slower but no
+  longer hangs indefinitely; no rAF patch is needed before testing. Don't revert this to rAF without
+  re-introducing that freeze.
 - For low-level Node-side testing (no DOM), extract the CPU/ROM section of the script (between the
   `8080A CPU` and `H9-TERMINAL` comment headers) and stub `document`, `beep`, `requestAnimationFrame`,
   `performance`. **You must set `powered = true` explicitly** — `romPowerOn()` alone does not set the
