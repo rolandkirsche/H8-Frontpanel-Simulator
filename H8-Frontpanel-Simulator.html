@@ -53,9 +53,9 @@
   }
   .h8-panel{
     background:linear-gradient(180deg,var(--putty-hi),var(--putty) 12%, var(--putty));
-    padding:24px 24px 18px;
+    padding:16px 24px 12px;
     position:relative;
-    display:flex;flex-direction:column;min-height:236px;
+    display:flex;flex-direction:column;min-height:0;
   }
 
   .main-row{display:flex;gap:20px;align-items:flex-start;}
@@ -94,7 +94,7 @@
 
   .keypad{flex:0 0 auto;width:216px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
   .key{
-    position:relative;height:36px;border-radius:4px;border:none;cursor:pointer;
+    position:relative;aspect-ratio:1;border-radius:4px;border:none;cursor:pointer;
     background:linear-gradient(180deg,var(--key-hi),var(--key) 40%, var(--key-dark));
     box-shadow:0 2px 0 var(--key-dark), inset 0 1px 0 rgba(255,255,255,.25);
     color:var(--key-legend);font-family:inherit;
@@ -107,7 +107,7 @@
   .key .sub-tl{top:2px;left:3px;}
   .key .sub-br{bottom:2px;right:3px;}
 
-  .brand-block{margin-top:auto;padding-top:20px;}
+  .brand-block{margin-top:auto;padding-top:8px;}
   .wordmark{display:block;font-style:italic;font-weight:800;font-size:21px;letter-spacing:-0.01em;color:var(--badge);}
   .model-tag{display:block;margin-top:2px;font-size:9px;font-weight:700;letter-spacing:.09em;color:#7a7263;text-transform:uppercase;}
 
@@ -718,7 +718,10 @@ const SEG_LETTERS=['a','b','c','d','e','f','g'];
    Empirisch aus dem laufenden ROM sowie aus dem Original-Quelltext
    "XCON8 ROM.asm" (T. Gulczynski Re-Creation, basierend auf J.G. Letwins
    PAM-8 von 1976) abgeleitet: Speicher-Layout, Port-360/361-Protokoll,
-   Zeichentabellen und die vollstaendige Tastenmatrix (Subroutine RCK). */
+   Zeichentabellen und die vollstaendige Tastenmatrix (Subroutine RCK).
+   Verifiziert (11.09.2026): byte-identisch (SHA-256
+   ddd0748c3f842f5d6d2203a8afd49110e6f8d23e13fbdcfd84c74bf8f6936e13) mit
+   2708_444-13_pam8.rom aus dem MAME-H8-ROM-Set (h8.zip). */
 const PAM8_ROM_B64 = "EfkDIQogwzsAzVoAFgDDgQDNWgAaw6QBwyUgNDQ0MTPDKCBASkdMQMMrIPWvw2MCwy4gPtDDnQHDMSAadyscwjsAFgQhABx3GX41vsJHACv55SHSAOU+TtP549XF9eshCgA55dURCSAaL+YwyCECADkiHSDJCg/cHyDx8cHR4fvJKhsgIyIbICEIIH5H5kAjfkrCnwAjNcKcADYJXhlLsdPwftPxLht+5h/McQMBCSAK5iDCegALChfaywA+Cs0qA14jVhsa/nbK0gDb8P4uwnUAIQggfua9dyM28PsqHSD5zV4C+yHlAOUBByAK5gEvMgYgzbADKhQg/grSBQFfCg/aKQF71gTa0gBf5SEdARYAGV4Z4xEFIArmAgrJdWFjdZDaN0RCME4cD3vaNwE3zTYDIyIUIMn1zScDp8rSACPxwzIDPgICC68CzbADPf4G0tIABxLJ7gECySPKMwEaxgIS/gzYrxLJK8ozARrWAhLQPgoSya8CCwIhFSDDMgMG2xEG03xlaCICIM0CIGxnwzMBwzMA8zoJIO4Q0/AyCSDhw3oA9hDT8BLmIMLkAMMiICGkAiIZIAEA/s21Am/rDQl8xfXmf7U+AsKFAs3VAkRPPgrVzSoD0XEjcM3VAm8iACDN2QJ3IhQgIxt6s8LiAc16AvHBB9pbAsO6ASGkAiIZID4B0/k+FiYgzRQDJcIKAj4CzRQDbCIXICEBgc0PAyoAIOsqFCAjfZNvfJpnzQ8D5T4K1c0qA34jZm/NDwPh0c0PA37NFAMiFCAjG3qzwkQCKhcgzQ8DzQ8Dr9P5PmT1PoDj1eshCSCuXncuG3qGvsJwAi4Jc9Hhyc3VAioXIHy1yD4BMhQgR81bAuZ4D9jcXgLNqgLb8P4vyo0COhwgH8OQAq/T+cPSANvw/m/b+cAqGSDpFgBias3ZAhT+Fsq5Av4CwrUCPgq60rUCIhcgzdUCVF/N2QJnPjTT+c2qAuYCyt0C2/jFBgjlKhcgB099h298F2cXqQ/SBAN87oBnfe4Fb3kFwu4CIhcg4cHJfM0UA331zaoC5gHKFQM+EdP58dP4w+cCOgUgXxYAKh0gGcnNNgMrFgPUsAP+CNLSAF9+BwcH5vizdxXCOAM+D8NgAtUWAw4DFxcX9eYHxu5fGqjmf6h3I3gHR/ENwlcD0ck+AqDALgZ+B3dHI37mAioUIMqXA80nA+Uh4gMZfiNmb+O0fiNmb/XrIQsges1SA3vNUgPxGspSAzb/4SISIMnlxQ4UIRYg2/BHPgrNKwB4vsLIAw3CtwN37v4P0tYDDw8PD9K3A0c+As1gAnjmD8HhyaSYkJyGjcKMko+YzgFzSGAyJARxACAAAQAAAAAKyQ==";
 function decodeROM(b64){
   const bin = atob(b64);
@@ -1410,7 +1413,7 @@ async function romLoadInitialTestRoutine(btn){
 // H9-Anbindung, diesmal aber auf den ECHTEN Ports der H8-5-Karte (Handbuch
 // 595-2032-03, S.29/45/48): erst die Standard-USART-Initialisierung (Mode-
 // Instruction 0116 oktal = 8 Bit/1 Stopbit/x16-Takt, danach eine Command-
-// Instruction 067 oktal = TxEN+DTR+RxE+ER+RTS), dann eine Polling-Schleife,
+// Instruction 065 oktal = TxEN+RxE+ER+RTS), dann eine Polling-Schleife,
 // die das Statuswort an Port 373 auf RxRDY (Bit1) prueft, das Zeichen von
 // Port 372 liest und sofort per OUT 372 zurueckschickt.
 // WICHTIG (empirisch ermittelt): die Adresseingabe am Frontpanel behandelt die
@@ -1418,10 +1421,25 @@ async function romLoadInitialTestRoutine(btn){
 // 3-stellige oktale BYTES (hi dann lo, je 000-377 gueltig) - "040300" ergibt
 // also (040 oktal)*256+(300 oktal) = 0x20*256+0xC0 = 0x20C0, NICHT 0x40C0. Die
 // Sprungziele unten sind entsprechend auf 0x20C0 (Schleifenanfang) gesetzt.
-//   20C0: MVI A,0116 ; OUT 373 ; MVI A,067 ; OUT 373
+//   20C0: MVI A,0116 ; OUT 373 ; MVI A,065 ; OUT 373
 //   20C8: IN 373 ; ANI 2 ; JZ 20C8 ; IN 372 ; OUT 372 ; JMP 20C8
+// WICHTIG (per Live-Debugging gefunden, 11.09.2026): das Command-Byte darf
+// NICHT das DTR-Bit (Bit1) setzen. usartReceive() loest bei gesetztem DTR pro
+// empfangenem Byte einen echten RST-3-Interrupt (Vektor 030 oktal) aus - das
+// ist PAM8s EIGENE, unveraenderte ROM-Routine fuer den Konsolen-Empfang, die
+// dieses winzige Polling-Demo weder kennt noch erwartet. Da das Demo (anders
+// als PAM8-Programme) nie einen eigenen Stack Pointer setzt, springt die Firmware-
+// ISR beim RET auf einen undefinierten SP zurueck - beobachtet wurde ein Sprung
+// zurueck an die Programmanfangsadresse 20C0, wodurch die Initialisierung ein
+// zweites Mal mit bereits gesetztem expectMode=false laeuft und Mode-/Command-
+// Byte im USART-Modell vertauscht + alle Enable-Bits geloescht werden (TxEN/RxE
+// bleiben danach dauerhaft aus - erklärt frueheres Symptom: FULL DUPLEX zeigte
+// nach dem ersten Tastendruck dauerhaft kein Echo mehr, HALBDUPLEX schien "OK"
+// nur wegen des davon unabhaengigen lokalen Echos). Ohne DTR bleibt
+// pendingRxInterrupt immer false, das Demo bleibt reines Polling ohne jeden
+// Interrupt - genau wie dokumentiert.
 const SERIAL_ECHO_DEMO = [
-  0o076,0o116,0o323,0o373,0o076,0o067,0o323,0o373,
+  0o076,0o116,0o323,0o373,0o076,0o065,0o323,0o373,
   0o333,0o373,0o346,0o002,0o312,0o310,0o040,
   0o333,0o372,0o323,0o372,0o303,0o310,0o040
 ];
@@ -1564,6 +1582,14 @@ function digitFromEvent(e){
 }
 window.addEventListener('keydown',(e)=>{
   if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')) return;
+  // Der H9-Bildschirm hat seinen eigenen Tastatur-Handler (siehe h9Frame weiter
+  // unten) und sendet Zeichen ueber die serielle Leitung. Ohne diese Abgrenzung
+  // wuerde ein Tastendruck WAEHREND der H9-Bildschirm fokussiert ist zusaetzlich
+  // hier als H8-Frontpanel-Taste interpretiert (z.B. "m" -> MEM), obwohl der
+  // Anwender offensichtlich auf dem Terminal tippen wollte - empirisch am
+  // hoerbaren H8-Tastenklick erkannt, waehrend auf dem H9-Bildschirm nichts
+  // ankam, weil der eigentliche h9Frame-Handler mangels Fokus gar nicht feuerte.
+  if(e.target===h9Frame || (h9Frame && h9Frame.contains(e.target))) return;
   if(e.repeat) return;
   if(!powered) return;
   const digit = digitFromEvent(e);
@@ -1579,6 +1605,7 @@ window.addEventListener('keydown',(e)=>{
   if(k==='-'){ romPressKey(ROM_KEY_BYTE.MINUS); e.preventDefault(); return; }
 });
 window.addEventListener('keyup',(e)=>{
+  if(e.target===h9Frame || (h9Frame && h9Frame.contains(e.target))) return;
   const digit = digitFromEvent(e);
   if(digit!==null && digit<=7){ romReleaseKey(); return; }
   const k=e.key.toLowerCase();
@@ -1590,6 +1617,10 @@ h9Render();
 if(typeof global!=='undefined'){ global.__test = {powerOn, powerOff, rom, get powered(){return powered;}, ROM_KEY_BYTE, decodeRomSeg, romLoadExample, romLoadInitialTestRoutine, romLoadSerialEcho, romDoReset, romDoRTM,
   CPU, h9PowerOn, h9PowerOff, h9, wire, get h9powered(){return h9powered;}, maybeAutoLoadSerialEcho, h9TogglePower,
   get serialEchoLoaded(){return serialEchoLoaded;} }; }
+// Reiner Lese-Diagnose-Hook fuers Debugging in der echten Browser-Konsole
+// (Pendant zu global.__test oben, das nur unter Node/jsdom existiert) - kein
+// Verhaltensunterschied, greift nur lesend auf bereits existierende Objekte zu.
+if(typeof window!=='undefined'){ window.__h8dbg = { rom, wire, h9, get powered(){return powered;}, get h9powered(){return h9powered;}, get serialEchoLoaded(){return serialEchoLoaded;} }; }
 })();
 </script>
 </body>
