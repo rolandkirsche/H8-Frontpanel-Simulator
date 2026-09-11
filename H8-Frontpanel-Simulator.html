@@ -890,9 +890,10 @@ function usartOut(port,val){
   if(val & 0x40){ u.expectMode = true; u.txEnabled = false; u.rxEnabled = false; u.dtr = false; }
 }
 // Von der H9-Tastatur (wire.toH8, s. h9SendKeyBytes) oder programmgesteuert
-// (z.B. der abschliessende CR nach dem BASIC-Laden) eintreffende Bytes landen
-// hier im Empfangsregister; bei gesetztem DTR loest das den RST-3-Interrupt
-// aus (siehe romRunLoop) - exakt wie ein echtes 8251 mit angeschlossenem DTR.
+// (z.B. die Leerzeichen-Erkennungssequenz nach dem BASIC-Laden, siehe
+// romLoadExtendedBasic) eintreffende Bytes landen hier im Empfangsregister;
+// bei gesetztem DTR loest das den RST-3-Interrupt aus (siehe romRunLoop) -
+// exakt wie ein echtes 8251 mit angeschlossenem DTR.
 function usartReceive(byte){
   const u = rom.usart;
   if(!u.rxEnabled) return;
@@ -1533,16 +1534,19 @@ async function romLoadExtendedBasic(btn){
     await romLoadTapeAndGo(HBCONS_TAPE, 20);
     await romLoadTapeAndGo(EXTENDED_BASIC_TAPE, 300);
     // Nach dem GO laeuft BASIC nachweislich (echter Code im RAM, PC verlaesst das
-    // ROM) und wartet danach in einer engen Schleife auf ein RAM-Flag, das laut
-    // vorhandenem Kommentar bei usartReceive ("der abschliessende CR nach dem
-    // BASIC-Laden") ueber ein von der Konsole empfangenes Zeichen gesetzt wird -
-    // deshalb hier probehalber ein CR ueber denselben Empfangsweg schicken. Nicht
-    // abschliessend verifiziert: In eigenen Tests blieb der H9-Bildschirm trotzdem
-    // leer, das genaue Protokoll fuer BASICs Anmelde-Dialog (Quelle: Heath Software
-    // Reference Manual 595-2048, Abschnitt 5) ist hier noch nicht vollstaendig
-    // nachvollzogen. Bei Bedarf nach dem Direktstart manuell am H9 RETURN druecken.
-    await delay(300);
-    wire.toH8.push(0x0D);
+    // ROM) und wartet danach in einer engen Schleife auf Konsolen-Eingabe. Laut
+    // Original-Handbuch (Heath "H8 Software Reference", 1981, Abschnitt "Product
+    // Installation", S.0-25/0-29 "Loading From a Configured Tape") ist das kein
+    // beliebiges Zeichen, sondern ein dediziertes Geraete-Erkennungs-Handshake:
+    // "Press the GO key... Press the space bar on your console terminal several
+    // times. The console terminal will respond with the product description and
+    // its prompt character." Begruendung dort: "Because the H8 computer system
+    // recognizes multiple peripheral devices, you must signal the location of
+    // your console terminal by pressing the space bar." Also mehrere echte
+    // Leertaste-Bytes (0x20) statt eines einzelnen CR ueber die Konsolen-Leitung
+    // schicken - B.H. BASIC meldet sich danach laut Handbuch mit Kopfzeile und
+    // seinem Prompt-Zeichen "*".
+    for(let i=0;i<6;i++){ await delay(250); wire.toH8.push(0x20); }
   } finally {
     btn.disabled=false; btn.textContent=label;
   }
