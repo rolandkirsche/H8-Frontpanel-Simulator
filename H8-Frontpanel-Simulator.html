@@ -1543,10 +1543,31 @@ async function romLoadExtendedBasic(btn){
     // its prompt character." Begruendung dort: "Because the H8 computer system
     // recognizes multiple peripheral devices, you must signal the location of
     // your console terminal by pressing the space bar." Also mehrere echte
-    // Leertaste-Bytes (0x20) statt eines einzelnen CR ueber die Konsolen-Leitung
-    // schicken - B.H. BASIC meldet sich danach laut Handbuch mit Kopfzeile und
-    // seinem Prompt-Zeichen "*".
-    for(let i=0;i<6;i++){ await delay(250); wire.toH8.push(0x20); }
+    // Leertaste-Bytes (0x20) einzeln senden, bis die Kopfzeile ("BASIC") im
+    // H9-Bildschirmpuffer auftaucht.
+    for(let i=0;i<10;i++){
+      wire.toH8.push(0x20);
+      await delay(300);
+      const shown = Array.from(h9.buf).map(c=>String.fromCharCode(c)).join('');
+      if(shown.includes('BASIC')) break;
+    }
+    // Nach der Kopfzeile steht dort NICHT schon BASICs eigener "*"-Prompt, sondern
+    // (live beobachtet und gegen den Handbuchtext verifiziert) der Prompt "."
+    // von HBCONS' KONFIGURATIONSMENUE (siehe "Available Configuration Options":
+    // AUTO NEWLINE, BKSP=00008/, CONSOLE LENGTH=00080/, HIGH MEMORY=XXXXX/,
+    // LOWER CASE, PAD=4/, RUB OUT=00127/, SAVE? - jede Option per Command-
+    // Completion durch Tippen des ersten Buchstabens waehlbar, live bestaetigt:
+    // "B" vervollstaendigt korrekt zu "BKSP = 00008/", exakt wie im Handbuch
+    // beschrieben). Das Handbuch nennt zwar "type the return key at any time"
+    // als Weg, die Konfiguration zu ueberspringen - live beobachtet fuehrt ein
+    // automatisch geschicktes RETURN an dieser Stelle aber in einen Zustand mit
+    // dauerhaft deaktiviertem USART (cmd=0) und einer CPU, die Minuten lang ohne
+    // jede Bildschirmausgabe weiterlaeuft (vermutlich eine reale, aber ohne
+    // HBCONS-Disassemblierung nicht sicher auflösbare Schleife/Timing-Erwartung
+    // in HBCONS selbst) - deshalb hier bewusst NICHT automatisiert. Ab hier ist
+    // der Nutzer am Zug: das Konfigurationsmenue laesst sich genau wie im
+    // Handbuch beschrieben live am H9 bedienen (Buchstabe tippen -> Option per
+    // Command Completion waehlen, RETURN -> Standardwert uebernehmen).
   } finally {
     btn.disabled=false; btn.textContent=label;
   }
