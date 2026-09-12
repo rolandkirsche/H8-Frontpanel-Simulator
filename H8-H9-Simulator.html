@@ -370,23 +370,6 @@
       </div>
     </div>
     <div class="card">
-      <h2>H9-Terminal anbinden</h2>
-      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle – der Button unten tippt deshalb ein kleines, selbst
-      geschriebenes Echo-Programm (22 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und startet es
-      per <code>GO</code>. Es initialisiert den Konsolen-USART der H8-5-Karte (Port 372/373 oktal) und wartet dann
-      auf ein Byte vom H9, das es sofort zurückschickt. Lädt nicht automatisch beim Einschalten – so bleibt der
-      H8-Speicher frei für andere Experimente wie den Extended-BASIC-Direktstart weiter unten.</p>
-      <p>Nach einem Klick: auf den H9-Bildschirm klicken und tippen – jedes Zeichen läuft echt über die serielle
-      Leitung zum H8 und von dort zurück zum H9-Bildschirm.</p>
-      <p>In der Grundstellung (FULL DUPLEX ausgerastet) zeigt das H9 Getipptes sofort selbst an – <strong>und</strong>
-      schickt es zum H8, das es ebenfalls zurückechot. Beides zusammen zeigt jedes Zeichen doppelt: genau das
-      Verhalten, das am echten Halbduplex-Terminal an einem ebenfalls echoenden Rechner auftritt. Mit FULL DUPLEX
-      eingerastet zeigt das H9 nur noch, was tatsächlich vom H8 zurückkommt.</p>
-      <div class="actions">
-        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
-      </div>
-    </div>
-    <div class="card">
       <h2>Kassettenrekorder</h2>
       <p>LOAD und DUMP sind hier keine Attrappe: Es laufen die echten PAM8-ROM-Routinen (Sync-Byte-Suche, STX,
       Kopfdaten, CRC-16 – alles original), nur das Band selbst ist virtuell. DUMP schreibt ab der aktuellen
@@ -420,6 +403,23 @@
       DUPLEX zeigt das H9 nur noch, was tatsächlich vom H8 zurückkommt.</p>
       <div class="actions">
         <button class="util" id="btn-extended-basic">▶ Extended Benton Harbor BASIC starten</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>H9-Terminal anbinden</h2>
+      <p>Der H8 selbst kennt in PAM8 keine seriellen Befehle – der Button unten tippt deshalb ein kleines, selbst
+      geschriebenes Echo-Programm (22 Byte, Adresse <code>040300</code>) über echte Tastendrücke ein und startet es
+      per <code>GO</code>. Es initialisiert den Konsolen-USART der H8-5-Karte (Port 372/373 oktal) und wartet dann
+      auf ein Byte vom H9, das es sofort zurückschickt. Lädt nicht automatisch beim Einschalten – so bleibt der
+      H8-Speicher frei für andere Experimente wie den Extended-BASIC-Direktstart weiter oben.</p>
+      <p>Nach einem Klick: auf den H9-Bildschirm klicken und tippen – jedes Zeichen läuft echt über die serielle
+      Leitung zum H8 und von dort zurück zum H9-Bildschirm.</p>
+      <p>In der Grundstellung (FULL DUPLEX ausgerastet) zeigt das H9 Getipptes sofort selbst an – <strong>und</strong>
+      schickt es zum H8, das es ebenfalls zurückechot. Beides zusammen zeigt jedes Zeichen doppelt: genau das
+      Verhalten, das am echten Halbduplex-Terminal an einem ebenfalls echoenden Rechner auftritt. Mit FULL DUPLEX
+      eingerastet zeigt das H9 nur noch, was tatsächlich vom H8 zurückkommt.</p>
+      <div class="actions">
+        <button class="util" id="btn-serial-echo">Echo-Demo auf H8 neu laden &amp; starten</button>
       </div>
     </div>
   </div>
