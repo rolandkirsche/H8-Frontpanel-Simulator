@@ -291,9 +291,10 @@
       </div>
     </div>
     <p class="h9-note">Funktionale Nachbildung des H9-Video-Terminals nach der Original-Bedienungsanleitung
-    (Heath Teilenr. 595-2017-03), mit einer bewussten Abweichung: <strong>24 statt der originalen 12 Zeilen</strong>
-    zu 80 Zeichen (H9-Mod für praktischeren Betrieb bei längeren Sitzungen) – die echte H9-Hardware hat diese
-    Höhe fest verdrahtet, kein Software-Limit. Ansonsten weißer P4-Phosphor. Das Original arbeitet mit reiner
+    (Heath Teilenr. 595-2017-03), hier mit <strong>24 statt der werkseitigen 12 Zeilen</strong> zu 80 Zeichen: ein
+    echter Hardware-Umbau, der laut Nutzerangabe um 1980 in einer Computerzeitschrift veröffentlicht wurde (genauer
+    Titel/Ausgabe nicht verifiziert) – kein modernes Software-Zugeständnis, sondern historische Zusatzhardware, die
+    die werkseitige Zeilenzahl erweiterte. Ansonsten weißer P4-Phosphor. Das Original arbeitet mit reiner
     TTL-/MSI-Logik statt CPU und ROM – es gibt also keine Firmware zum Nachbauen, und anders als beim späteren H19
     kann der Rechner dem H9 keine Cursor-Steuercodes schicken: von den 32 ASCII-Steuerzeichen wirken laut Handbuch
     nur <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code>
@@ -433,9 +434,10 @@
     Subtraktion) sind vereinfacht.
     <br><br>
     Das H9-Terminal ist eine funktionale Nachbildung nach der Original-Bedienungsanleitung (Heath Teilenr.
-    595-2017-03), mit einer bewussten H9-Mod: 24 statt der originalen 12 Zeilen zu 80 Zeichen (1920 statt 960
-    Zeichen, 5×7-Punktraster, nur Großbuchstaben) für praktischeren Betrieb bei längeren Sitzungen – die echte
-    H9-Hardware hat 12 Zeilen fest verdrahtet, hier ist es reine Software. Reines
+    595-2017-03), hier mit dem historischen 24-Zeilen-Hardware-Umbau: 24 statt der werkseitigen 12 Zeilen zu 80
+    Zeichen (1920 statt 960 Zeichen, 5×7-Punktraster, nur Großbuchstaben), laut Nutzerangabe um 1980 in einer
+    Computerzeitschrift veröffentlicht (genauer Titel/Ausgabe nicht verifiziert) – am Originalgerät zusätzliche
+    Hardware, hier als Software nachgebildet. Reines
     TTL-/MSI-Logikgerät ohne CPU oder ROM – es existiert also keine Firmware, die sich nachbauen ließe.
     Zeichendarstellung, die vier wirksamen Steuerzeichen (Back Space, Bell, Line Feed, Carriage Return), die
     lokalen Cursor-/Löschtasten sowie Full-Duplex/Auto-Carry/Scroll/Hold-Screen-Verhalten sind direkt aus dem
@@ -1078,9 +1080,11 @@ function romDoRTM(){
 /* ================= H9-TERMINAL (nach Original-Bedienungsanleitung 595-2017-03) =================
  * Das echte H9 ist reine TTL-/MSI-Logik ohne Mikroprozessor - es gibt keine Firmware,
  * die sich nachbauen liesse. Verhalten hier so genau wie im Original-Handbuch beschrieben
- * nachgebildet - mit einer bewussten H9-Mod (siehe H9_ROWS unten): 24 statt der original
- * fest verdrahteten 12 Zeilen x 80 Zeichen (Handbuch S.32), fuer praktischeren Betrieb bei
- * laengeren Sitzungen. Alles andere unveraendert original, u.a. nur BACK SPACE,
+ * nachgebildet - mit dem historischen 24-Zeilen-Hardware-Umbau (siehe H9_ROWS unten): 24
+ * statt der werkseitig fest verdrahteten 12 Zeilen x 80 Zeichen (Handbuch S.32), laut
+ * Nutzerangabe um 1980 in einer Computerzeitschrift veroeffentlicht (genauer Titel/Ausgabe
+ * nicht verifiziert) - am Originalgeraet zusaetzliche Hardware, hier als Software
+ * nachgebildet. Alles andere unveraendert original, u.a. nur BACK SPACE,
  * BELL, LINE FEED und CARRIAGE RETURN haben ueberhaupt eine Wirkung - alle anderen der
  * 32 ASCII-Steuerzeichen (inkl. ESC) werden laut Handbuch S.8 weder dargestellt noch ins
  * Bild-RAM geschrieben, egal ob von der Tastatur oder ueber die Leitung. Pfeiltasten,
@@ -1094,11 +1098,13 @@ function romDoRTM(){
  * Ports der H8-5-Karte (372/373 oktal, Konsolen-USART - siehe romIoIn/romIoOut oben),
  * aber mit stark vereinfachtem 8251-Verhalten (kein Timing/Baudrate/Fehlererkennung).
  */
-// H9-MOD (bewusste Abweichung vom Original, auf Nutzerwunsch): echte H9-Hardware
-// hat fest 12 Zeilen (TTL-/MSI-Logik, kein Software-Limit). Hier auf 24 Zeilen
-// verdoppelt fuer praktischeren Betrieb (z.B. laengere BASIC-Sitzungen) - alle
-// anderen H9-Eigenschaften (Steuerzeichen, lokale Tasten, FULL DUPLEX/AUTO
-// CARRY/SCROLL-Verhalten) bleiben unveraendert original.
+// HISTORISCHER 24-ZEILEN-HARDWARE-UMBAU: werkseitig hat das H9 fest 12 Zeilen
+// (TTL-/MSI-Logik, kein Software-Limit). Dieser Umbau auf 24 Zeilen wurde laut
+// Nutzerangabe um 1980 in einer Computerzeitschrift veroeffentlicht (genauer
+// Titel/Ausgabe nicht verifiziert) - am Originalgeraet zusaetzliche Hardware,
+// hier als reine Software-Konstante nachgebildet. Alle anderen H9-Eigenschaften
+// (Steuerzeichen, lokale Tasten, FULL DUPLEX/AUTO CARRY/SCROLL-Verhalten)
+// bleiben unveraendert original.
 const H9_COLS=80, H9_ROWS=24;
 const h9 = {
   buf:null, row:0, col:0, flashUntil:0,
