@@ -291,7 +291,9 @@
       </div>
     </div>
     <p class="h9-note">Funktionale Nachbildung des H9-Video-Terminals nach der Original-Bedienungsanleitung
-    (Heath Teilenr. 595-2017-03): 12 Zeilen zu 80 Zeichen, weißer P4-Phosphor. Das Original arbeitet mit reiner
+    (Heath Teilenr. 595-2017-03), mit einer bewussten Abweichung: <strong>24 statt der originalen 12 Zeilen</strong>
+    zu 80 Zeichen (H9-Mod für praktischeren Betrieb bei längeren Sitzungen) – die echte H9-Hardware hat diese
+    Höhe fest verdrahtet, kein Software-Limit. Ansonsten weißer P4-Phosphor. Das Original arbeitet mit reiner
     TTL-/MSI-Logik statt CPU und ROM – es gibt also keine Firmware zum Nachbauen, und anders als beim späteren H19
     kann der Rechner dem H9 keine Cursor-Steuercodes schicken: von den 32 ASCII-Steuerzeichen wirken laut Handbuch
     nur <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code>
@@ -299,7 +301,7 @@
     Normalbetrieb ohne beschriebene Bildschirmwirkung – hier zusätzlich als destruktives Löschen ergänzt, keine
     belegte Handbuch-Angabe. FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter; laut Handbuch ist
     „ausgerastet“ bei allen dreien die Grundstellung, SCROLL startet hier abweichend davon bewusst eingerastet
-    (sonst friert der Bildschirm nach 12 Zeilen in HOLD SCREEN ein). SHORT FORM, PLOT-Modus, Baudraten-Wahl,
+    (sonst friert der Bildschirm nach voller Seite in HOLD SCREEN ein). SHORT FORM, PLOT-Modus, Baudraten-Wahl,
     OFF LINE, BREAK und XMIT PAGE aus dem Original sind hier nicht nachgebildet.</p>
   </div>
 
@@ -431,7 +433,9 @@
     Subtraktion) sind vereinfacht.
     <br><br>
     Das H9-Terminal ist eine funktionale Nachbildung nach der Original-Bedienungsanleitung (Heath Teilenr.
-    595-2017-03): 12 Zeilen zu 80 Zeichen (960 Zeichen, 5×7-Punktraster, nur Großbuchstaben), reines
+    595-2017-03), mit einer bewussten H9-Mod: 24 statt der originalen 12 Zeilen zu 80 Zeichen (1920 statt 960
+    Zeichen, 5×7-Punktraster, nur Großbuchstaben) für praktischeren Betrieb bei längeren Sitzungen – die echte
+    H9-Hardware hat 12 Zeilen fest verdrahtet, hier ist es reine Software. Reines
     TTL-/MSI-Logikgerät ohne CPU oder ROM – es existiert also keine Firmware, die sich nachbauen ließe.
     Zeichendarstellung, die vier wirksamen Steuerzeichen (Back Space, Bell, Line Feed, Carriage Return), die
     lokalen Cursor-/Löschtasten sowie Full-Duplex/Auto-Carry/Scroll/Hold-Screen-Verhalten sind direkt aus dem
@@ -1074,7 +1078,9 @@ function romDoRTM(){
 /* ================= H9-TERMINAL (nach Original-Bedienungsanleitung 595-2017-03) =================
  * Das echte H9 ist reine TTL-/MSI-Logik ohne Mikroprozessor - es gibt keine Firmware,
  * die sich nachbauen liesse. Verhalten hier so genau wie im Original-Handbuch beschrieben
- * nachgebildet: 12 Zeilen x 80 Zeichen (960 Zeichen, Handbuch S.32), nur BACK SPACE,
+ * nachgebildet - mit einer bewussten H9-Mod (siehe H9_ROWS unten): 24 statt der original
+ * fest verdrahteten 12 Zeilen x 80 Zeichen (Handbuch S.32), fuer praktischeren Betrieb bei
+ * laengeren Sitzungen. Alles andere unveraendert original, u.a. nur BACK SPACE,
  * BELL, LINE FEED und CARRIAGE RETURN haben ueberhaupt eine Wirkung - alle anderen der
  * 32 ASCII-Steuerzeichen (inkl. ESC) werden laut Handbuch S.8 weder dargestellt noch ins
  * Bild-RAM geschrieben, egal ob von der Tastatur oder ueber die Leitung. Pfeiltasten,
@@ -1088,16 +1094,22 @@ function romDoRTM(){
  * Ports der H8-5-Karte (372/373 oktal, Konsolen-USART - siehe romIoIn/romIoOut oben),
  * aber mit stark vereinfachtem 8251-Verhalten (kein Timing/Baudrate/Fehlererkennung).
  */
-const H9_COLS=80, H9_ROWS=12;
+// H9-MOD (bewusste Abweichung vom Original, auf Nutzerwunsch): echte H9-Hardware
+// hat fest 12 Zeilen (TTL-/MSI-Logik, kein Software-Limit). Hier auf 24 Zeilen
+// verdoppelt fuer praktischeren Betrieb (z.B. laengere BASIC-Sitzungen) - alle
+// anderen H9-Eigenschaften (Steuerzeichen, lokale Tasten, FULL DUPLEX/AUTO
+// CARRY/SCROLL-Verhalten) bleiben unveraendert original.
+const H9_COLS=80, H9_ROWS=24;
 const h9 = {
   buf:null, row:0, col:0, flashUntil:0,
   fullDuplex:false, // ausgerastet = Halbduplex/Lokal-Echo, die Grundstellung lt. Handbuch S.7
   autoCarry:false,  // ausgerastet = kein automatischer Zeilenumbruch, Grundstellung lt. Handbuch S.5
   // Bewusste Abweichung von der Handbuch-Grundstellung (dort ausgerastet, s.
   // history): auf Nutzerwunsch standardmaessig eingerastet, damit laengere
-  // Sitzungen (z.B. Extended-BASIC-Ausgabe) nicht nach 12 Zeilen in HOLD SCREEN
-  // haengenbleiben. Der Schalter selbst bleibt ein echtes, frei umschaltbares
-  // Original-Bedienelement - nur sein Startzustand ist hier veraendert.
+  // Sitzungen (z.B. Extended-BASIC-Ausgabe) nicht bei voller Seite in HOLD
+  // SCREEN haengenbleiben. Der Schalter selbst bleibt ein echtes, frei
+  // umschaltbares Original-Bedienelement - nur sein Startzustand ist hier
+  // veraendert.
   scroll:true,
   hold:false,
   runHandle:null,
