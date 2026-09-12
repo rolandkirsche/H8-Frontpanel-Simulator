@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single self-contained HTML file (`H8-Frontpanel-Simulator.html`) that emulates a Heathkit H8
+A single self-contained HTML file (`H8-H9-Simulator.html`) that emulates a Heathkit H8
 digital computer (1977), its H9 video terminal, and the H8-5 serial/cassette interface card —
 running the **original ROM firmware** (PAM-8 monitor) on a hand-written 8080A emulator, not a
 reimplementation of its behavior. There is no build system, no package.json, no test framework —
@@ -18,7 +18,7 @@ about H8 behavior, and check them before guessing at hardware/firmware behavior.
 
 There is no build, lint, or test tooling. Development loop:
 
-- **Run it**: open `H8-Frontpanel-Simulator.html` directly in a browser (`start H8-Frontpanel-Simulator.html`
+- **Run it**: open `H8-H9-Simulator.html` directly in a browser (`start H8-H9-Simulator.html`
   on Windows), or serve it locally if `file://` restrictions get in the way of testing (e.g.
   `python -m http.server` or a one-off `node` static server — see below for why plain page automation
   can be unreliable for this app specifically).
@@ -26,7 +26,7 @@ There is no build, lint, or test tooling. Development loop:
   ```bash
   node -e "
   const fs = require('fs');
-  const html = fs.readFileSync('H8-Frontpanel-Simulator.html','utf8');
+  const html = fs.readFileSync('H8-H9-Simulator.html','utf8');
   const m = html.match(/<script>([\s\S]*)<\/script>/);
   fs.writeFileSync('/tmp/extracted.js', m[1]);
   "
