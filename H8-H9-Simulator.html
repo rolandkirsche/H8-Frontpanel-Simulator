@@ -394,6 +394,13 @@
       <p>Ablauf wie im Original-Handbuch: Startadresse nach <code>040000</code>/<code>040001</code> ALTERn,
       Einsprungadresse ins PC-Register, Endadresse im MEM-Modus anzeigen, dann <code>DUMP</code> drücken. Zum
       Zurückladen einfach <code>LOAD</code> drücken (keine vorherige Adresseingabe nötig).</p>
+      <p>„📂 Band aus Datei laden" akzeptiert jede Datei ohne Formatprüfung – damit lassen sich auch andere
+      echte Original-Bandabbilder abspielen, z.&nbsp;B. <code>BUG8-*.H8T</code> (Konsolen-Debugger),
+      <code>TED8-*.H8T</code> (Texteditor), <code>HASL8-*.H8T</code> (Assembler) oder die Spiele-Bänder aus dem
+      SEBHC-Software-Archiv. Nach LOAD und GO am H9 <strong>einmal RETURN drücken</strong>: Die meisten
+      Original-Heath-Programme teilen sich denselben Konsolentreiber, der zunächst ein kurzes
+      Konfigurationsmenü zeigt (Prompt „<code>.</code>") – RETURN überspringt das und bringt den eigentlichen
+      Programm-Prompt (z.&nbsp;B. „<code>B:</code>" bei BUG-8, „<code>*</code>" bei BASIC).</p>
       <div class="actions">
         <button class="util" id="btn-cassette-rewind">⏮ Zurückspulen</button>
         <button class="util" id="btn-cassette-eject">⏏ Band leeren (neu)</button>
