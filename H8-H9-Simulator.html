@@ -1602,6 +1602,13 @@ async function romLoadTapeAndGo(tapeBytes, maxIdleTicks){
     await delay(100);
     if(cassette.pos === lastPos) stableTicks++; else { stableTicks=0; lastPos=cassette.pos; }
   }
+  // GO (Taste 4) startet nur zuverlaessig, wenn das Panel bereits im REG-Modus
+  // die PC-Anzeige zeigt - sonst interpretiert PAM8 dieselbe Taste als "DE"
+  // (Doppelbelegung "DE / GO"). Ohne dieses REG+6 davor haengt der GO-Druck vom
+  // zufaelligen Vorzustand des Panels ab (live beobachtet: nach frischem
+  // Kaltstart schlug er zuverlaessig fehl, PC blieb im Monitor stehen).
+  await romPressAndRelease(ROM_KEY_BYTE.REG, 80, 60);
+  await romPressAndRelease(ROM_KEY_BYTE[6], 80, 60);
   await romPressAndRelease(ROM_KEY_BYTE[4], 80, 60); // GO - startet ab der beim Laden wiederhergestellten PC-Adresse
 }
 
