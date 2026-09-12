@@ -1,4 +1,4 @@
-# H8 Frontpanel Simulator
+# H8-H9-Simulator
 
 Eine funktionsgetreue Nachbildung des Heathkit H8 (1977) im Browser: 8080A-Emulator, das
 **originale PAM-8-Monitor-ROM**, ein H9-Video-Terminal (nach Original-Handbuch, hier mit
