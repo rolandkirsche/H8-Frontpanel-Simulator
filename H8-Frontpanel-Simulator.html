@@ -286,7 +286,7 @@
         <label for="h9-autocarry-toggle">AUTO CARRY <span>(aus = kein Zeilenumbruch)</span></label>
       </div>
       <div class="power-switch">
-        <div class="toggle" id="h9-scroll-toggle" role="switch" aria-checked="false" tabindex="0" aria-label="Scroll"><i></i></div>
+        <div class="toggle on" id="h9-scroll-toggle" role="switch" aria-checked="true" tabindex="0" aria-label="Scroll"><i></i></div>
         <label for="h9-scroll-toggle">SCROLL <span>(aus = Hold Screen bei voller Seite)</span></label>
       </div>
     </div>
@@ -297,9 +297,10 @@
     nur <code>BACK SPACE</code>, <code>BELL</code>, <code>LINE FEED</code> und <code>CARRIAGE RETURN</code>
     überhaupt etwas, gleichermaßen von Tastatur wie Leitung. RUBOUT (0x7F, die Löschtaste) ist im Handbuch für den
     Normalbetrieb ohne beschriebene Bildschirmwirkung – hier zusätzlich als destruktives Löschen ergänzt, keine
-    belegte Handbuch-Angabe. FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter mit „ausgerastet“ als
-    Grundstellung; SHORT FORM, PLOT-Modus, Baudraten-Wahl, OFF LINE, BREAK und XMIT PAGE aus dem Original sind
-    hier nicht nachgebildet.</p>
+    belegte Handbuch-Angabe. FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter; laut Handbuch ist
+    „ausgerastet“ bei allen dreien die Grundstellung, SCROLL startet hier abweichend davon bewusst eingerastet
+    (sonst friert der Bildschirm nach 12 Zeilen in HOLD SCREEN ein). SHORT FORM, PLOT-Modus, Baudraten-Wahl,
+    OFF LINE, BREAK und XMIT PAGE aus dem Original sind hier nicht nachgebildet.</p>
   </div>
 
   <div class="panel-below">
@@ -1078,8 +1079,10 @@ function romDoRTM(){
  * 32 ASCII-Steuerzeichen (inkl. ESC) werden laut Handbuch S.8 weder dargestellt noch ins
  * Bild-RAM geschrieben, egal ob von der Tastatur oder ueber die Leitung. Pfeiltasten,
  * HOME und die Loeschfunktionen sind reine "Local Function Keys" ohne Sendewirkung
- * (Handbuch S.4). FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter mit
- * "ausgerastet" als Grundstellung (Handbuch S.5, S.7f). KEIN Anspruch auf Bit-genaue
+ * (Handbuch S.4). FULL DUPLEX, AUTO CARRY und SCROLL sind echte Kippschalter, deren
+ * Handbuch-Grundstellung bei allen dreien "ausgerastet" ist (Handbuch S.5, S.7f) - SCROLL
+ * startet hier abweichend davon bewusst eingerastet, siehe Kommentar bei h9.scroll unten.
+ * KEIN Anspruch auf Bit-genaue
  * Schaltungssimulation; SHORT FORM, PLOT, BAUD RATE, OFF LINE, BREAK und XMIT PAGE aus
  * dem Original sind hier nicht nachgebildet. Die serielle H8-Seite nutzt die echten
  * Ports der H8-5-Karte (372/373 oktal, Konsolen-USART - siehe romIoIn/romIoOut oben),
@@ -1090,7 +1093,12 @@ const h9 = {
   buf:null, row:0, col:0, flashUntil:0,
   fullDuplex:false, // ausgerastet = Halbduplex/Lokal-Echo, die Grundstellung lt. Handbuch S.7
   autoCarry:false,  // ausgerastet = kein automatischer Zeilenumbruch, Grundstellung lt. Handbuch S.5
-  scroll:false,     // ausgerastet = kein Auto-Scroll -> HOLD SCREEN bei vollem Bild, Handbuch S.5/S.8
+  // Bewusste Abweichung von der Handbuch-Grundstellung (dort ausgerastet, s.
+  // history): auf Nutzerwunsch standardmaessig eingerastet, damit laengere
+  // Sitzungen (z.B. Extended-BASIC-Ausgabe) nicht nach 12 Zeilen in HOLD SCREEN
+  // haengenbleiben. Der Schalter selbst bleibt ein echtes, frei umschaltbares
+  // Original-Bedienelement - nur sein Startzustand ist hier veraendert.
+  scroll:true,
   hold:false,
   runHandle:null,
 };
